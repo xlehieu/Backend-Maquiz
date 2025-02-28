@@ -27,12 +27,13 @@ app.use(express.json({ limit: '30mb' }));
 // app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(
-    cors({
-        origin: process.env.ALLOW_ORIGIN,
-        credentials: true,
-        methods: 'GET,POST,PUT,DELETE,OPTIONS,PATCH',
-        allowedHeaders: ['Content-Type', 'Authorization'],
-    }),
+    cors(),
+    //     {
+    //     origin: process.env.ALLOW_ORIGIN,
+    //     credentials: true,
+    //     methods: 'GET,POST,PUT,DELETE,OPTIONS,PATCH',
+    //     allowedHeaders: ['Content-Type', 'Authorization'],
+    // }
 );
 routes(app);
 app.use((req, res, next) => {
