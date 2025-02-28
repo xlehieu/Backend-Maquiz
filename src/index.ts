@@ -6,6 +6,7 @@ import routes from './routers';
 import * as database from './db';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
+import corsMiddleware from './app/middlewares/cors.middleware';
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;
@@ -26,15 +27,7 @@ app.set('timeout', 50000);
 app.use(express.json({ limit: '30mb' }));
 // app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(
-    cors(),
-    //     {
-    //     origin: process.env.ALLOW_ORIGIN,
-    //     credentials: true,
-    //     methods: 'GET,POST,PUT,DELETE,OPTIONS,PATCH',
-    //     allowedHeaders: ['Content-Type', 'Authorization'],
-    // }
-);
+app.use(corsMiddleware);
 routes(app);
 app.use((req, res, next) => {
     console.log(`Request URL: ${req.originalUrl}`);
