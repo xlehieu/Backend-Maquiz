@@ -46,7 +46,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     res.status(500).json({ error: 'Something went wrong!' });
 });
 console.log(process.env.ALLOW_ORIGIN);
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+// app.listen(port, () => {
+//     console.log(`Server is running on http://localhost:${port}`);
+// });
 export default app;
