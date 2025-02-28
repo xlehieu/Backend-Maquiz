@@ -53,6 +53,7 @@ export const registerUser = async (req: any, res: Response): Promise<any> => {
         });
         return res.status(200).json(response);
     } catch (err) {
+        console.log(err);
         return res.status(500).json(err);
     }
 };
@@ -68,6 +69,7 @@ export const loginUser = async (req: any, res: Response): Promise<any> => {
         });
         return res.status(200).json({ message: 'Đăng nhập thành công' });
     } catch (err) {
+        console.log(err);
         return res.status(401).json(err);
     }
 };

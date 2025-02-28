@@ -57,6 +57,7 @@ export const registerUser = (req: Request) => {
                 });
             }
         } catch (err) {
+            console.log(err);
             return reject(err);
         }
     });
@@ -122,6 +123,7 @@ export const loginUser = (req: Request): Promise<any> => {
                 access_token: `Bearer ${access_token}`,
             });
         } catch (err) {
+            console.log(err);
             reject(err);
         }
     });
