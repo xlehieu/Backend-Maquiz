@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import routes from './routers';
-import * as database from './config';
+import * as database from './db';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 dotenv.config();
