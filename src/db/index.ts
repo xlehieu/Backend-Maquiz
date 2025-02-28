@@ -10,6 +10,6 @@ export async function connect() {
             serverSelectionTimeoutMS: 60000, // Tăng thời gian chờ chọn server lên 30 giây
             socketTimeoutMS: 60000, // Tăng thời gian chờ socket
         });
-        console.log('Successfully connect');
+        console.log('Successfully connect DB');
     } catch (err) {}
 }
