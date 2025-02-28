@@ -47,7 +47,7 @@ export const registerUser = async (req: any, res: Response): Promise<any> => {
         const response: any = await userService.registerUser(req);
         req.session.access_token = response.access_token;
         res.cookie('user_email', response.email, {
-            httpOnly: false, // có thể truy cập cookie từ JavaScript (bảo mật)
+            httpOnly: true, // có thể truy cập cookie từ JavaScript (bảo mật)
             maxAge: 1000 * 60 * 60 * 24, // Cookie hết hạn sau 1 ngày
             sameSite: 'strict', // Ngăn chặn các cuộc tấn công CSRF
             secure: true, // bật khi deploy
@@ -63,7 +63,7 @@ export const loginUser = async (req: any, res: Response): Promise<any> => {
         const response: any = await userService.loginUser(req);
         req.session.access_token = response.access_token;
         res.cookie('user_email', response.email, {
-            httpOnly: false, // có thể truy cập cookie từ JavaScript (bảo mật)
+            httpOnly: true, // có thể truy cập cookie từ JavaScript (bảo mật)
             maxAge: 1000 * 60 * 60 * 24, // Cookie hết hạn sau 1 ngày
             sameSite: 'strict', // Ngăn chặn các cuộc tấn công CSRF
             secure: true, // bật khi deploy
