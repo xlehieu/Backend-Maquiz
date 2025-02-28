@@ -89,6 +89,7 @@ export const getUserDetail = (req: Request) => {
                 message: 'Xin lỗi! Không tìm thấy dữ liệu người dùng',
             });
         } catch (err) {
+            console.log(err);
             reject(err);
         }
     });

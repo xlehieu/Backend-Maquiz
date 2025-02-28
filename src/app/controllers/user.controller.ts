@@ -17,6 +17,7 @@ export const getUserDetail = async (req: Request, res: Response): Promise<any> =
         const response = await userService.getUserDetail(req);
         return res.status(200).json(response);
     } catch (err) {
+        console.log(err);
         return res.status(500).json({
             status: 'ERROR',
             message: err,
