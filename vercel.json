@@ -1,6 +1,4 @@
 {
-    "public": true,
-    "functions": {
-        "api/*.sh": { "runtime": "vercel-dev-runtime@0.0.4" }
-    }
+    "version": 2,
+    "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
 }
