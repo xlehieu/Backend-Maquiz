@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { NextFunction, Response } from 'express';
-import cookieParser from 'cookie-parser';
 
 interface IUser {}
 dotenv.config();

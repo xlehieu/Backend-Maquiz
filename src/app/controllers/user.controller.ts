@@ -104,16 +104,18 @@ export const deleteUser = async (req: Request, res: Response): Promise<any> => {
 };
 export const logoutUser = async (req: Request, res: Response): Promise<any> => {
     try {
+        res.clearCookie('access_token');
+        res.clearCookie('user_email');
         // Xóa session
-        req.session.destroy((err) => {
-            if (err) {
-                return res.status(500).json({ status: 'error', message: 'Failed to logout' });
-            }
-            // Xóa cookie liên quan nếu có
-            res.clearCookie('connect.sid'); // Thay 'connect.sid' bằng tên cookie bạn sử dụng
+        // req.session.destroy((err) => {
+        //     if (err) {
+        //         return res.status(500).json({ status: 'error', message: 'Failed to logout' });
+        //     }
+        //     res.clearCookie('connect.sid'); // Thay 'connect.sid' bằng tên cookie bạn sử dụng
+        //     // Xóa cookie liên quan nếu có
 
-            return res.status(200).json({ status: 'OK', message: 'Log out success' });
-        });
+        // });
+        return res.status(200).json({ status: 'OK', message: 'Log out success' });
     } catch (err) {
         return res.status(500).json(err);
     }
