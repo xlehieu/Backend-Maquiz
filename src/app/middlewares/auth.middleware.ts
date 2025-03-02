@@ -7,11 +7,13 @@ interface IUser {}
 dotenv.config();
 //dùng để check admin
 export const authMiddleware = (req: any, res: Response, next: NextFunction) => {
-    if (!req.session.access_token) return;
-    const token = req.session.access_token?.split(' ')[1];
+    let cookies: any = req.cookies.access_token; //ở index.ts đã dùng app.use(cookieParser) nên ở d
+    console.log(cookies);
+    //if (!req.session.access_token) return res.status(401).json(); //.json({ status: 'ERR', message: 'Bạn cần đăng nhập' });
+    cookies = cookies?.split(' ')[1];
     //hàm verify này nhận dối số thứ 2 là khóa để giải mã
     // ở hàm general token bên jwtservice cũng là khóa process.env.access_token nên nó giải mã được
-    jwt.verify(token, process.env.ACCESS_TOKEN as any, function (err: any, user: any) {
+    jwt.verify(cookies, process.env.ACCESS_TOKEN as any, function (err: any, user: any) {
         if (err) {
             return res.status(404).json({
                 status: 'ERROR',
@@ -24,13 +26,13 @@ export const authMiddleware = (req: any, res: Response, next: NextFunction) => {
                 message: 'Authentication error',
             });
         }
-        console.log(user);
         next();
     });
 };
 //dùng để check người dùng
 export const authUserMiddleware = (req: any, res: Response, next: NextFunction): any => {
     let cookies: any = req.cookies.access_token; //ở index.ts đã dùng app.use(cookieParser) nên ở d
+    console.log(cookies);
     //if (!req.session.access_token) return res.status(401).json(); //.json({ status: 'ERR', message: 'Bạn cần đăng nhập' });
     cookies = cookies?.split(' ')[1];
     //hàm verify này nhận dối số thứ 2 là khóa để giải mã
