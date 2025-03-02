@@ -40,7 +40,6 @@ export const createClassroom = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { name, subject, user } = req.body;
-            console.log('req body', req.body);
             if (!name?.trim() || !subject?.trim()) {
                 if (!mongoose.Types.ObjectId.isValid(user?.id)) {
                     return reject({ message: 'Không tìm thấy người dùng' });
@@ -51,7 +50,6 @@ export const createClassroom = (req: Request) => {
             if (!teacher) return reject({ message: 'Không tìm thấy giáo viên' });
             //tạo lớp class code
             let classCode = generateUniqueRandomString(6);
-            console.log(classCode);
             let classCodeExists = await mongoose.models.classroom.exists({ classCode });
             // kiểm tra xem có trùng không?
             while (classCodeExists) {
@@ -61,7 +59,6 @@ export const createClassroom = (req: Request) => {
             classCode = classCode;
             const thumb = imageClassThumbnailDefault[Math.floor(Math.random() * imageClassThumbnailDefault.length)];
             const classroom = await ClassRoom.create({ name, subject, teacher: user.id, thumb, classCode });
-            console.log(classroom);
             teacher.myClassrooms.push(classroom.id);
             await teacher.save();
             if (classroom) {

@@ -7,7 +7,6 @@ dotenv.config();
 //dùng để check admin
 export const authMiddleware = (req: any, res: Response, next: NextFunction) => {
     let cookies: any = req.cookies.access_token; //ở index.ts đã dùng app.use(cookieParser) nên ở d
-    console.log(cookies);
     //if (!req.session.access_token) return res.status(401).json(); //.json({ status: 'ERR', message: 'Bạn cần đăng nhập' });
     cookies = cookies?.split(' ')[1];
     //hàm verify này nhận dối số thứ 2 là khóa để giải mã

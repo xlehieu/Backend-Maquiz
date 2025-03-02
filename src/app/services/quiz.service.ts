@@ -232,7 +232,6 @@ export const getQuizForExam = (req: Request) => {
                 const findUser = await User.findById(findQuiz.user);
                 const { name, description, subject, school, thumb, quiz, accessCount, examCount, createdAt } = findQuiz;
                 findQuiz.examCount = Number(examCount + 1);
-                console.log(findQuiz.examCount);
                 await findQuiz.save();
                 return resolve({
                     message: 'Successfully fetched',
