@@ -1,9 +1,8 @@
 import express, { NextFunction, Request, Response } from 'express';
-import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import routes from './routers';
-import * as database from './db';
+import * as database from './db/mongodb';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import corsMiddleware from './app/middlewares/cors.middleware';
@@ -40,7 +39,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     res.status(500).json({ error: 'Something went wrong!' });
 });
 console.log(process.env.ALLOW_ORIGIN);
-// app.listen(port, () => {
-//     console.log(`Server is running on http://localhost:${port}`);
-// });
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});
 export default app;

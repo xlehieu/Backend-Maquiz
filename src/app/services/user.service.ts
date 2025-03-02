@@ -97,7 +97,6 @@ export const getUserDetail = (req: Request) => {
 export const loginUser = (req: Request): Promise<any> => {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log(req.body);
             const { email, password } = req.body;
             if (!email || !password) return reject({ message: 'Thiếu dữ liệu' });
             const userCheck = await User.findOne({
