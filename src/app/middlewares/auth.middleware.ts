@@ -24,6 +24,7 @@ export const authMiddleware = (req: any, res: Response, next: NextFunction) => {
                 message: 'Authentication error',
             });
         }
+        console.log(user);
         next();
     });
 };

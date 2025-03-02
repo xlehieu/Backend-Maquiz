@@ -68,7 +68,7 @@ export const loginUser = async (req: any, res: Response): Promise<any> => {
             maxAge: 1000 * 60 * 24, // Hết hạn sau 15 phút (hoặc tùy vào token)
         });
         res.cookie('user_email', response.email, {
-            httpOnly: true, // có thể truy cập cookie từ JavaScript (bảo mật)
+            httpOnly: false, // có thể truy cập cookie từ JavaScript (bảo mật)
             secure: true, // bật khi deploy
             maxAge: 1000 * 60 * 60 * 24, // Cookie hết hạn sau 1 ngày
             sameSite: 'strict', // Ngăn chặn các cuộc tấn công CSRF
