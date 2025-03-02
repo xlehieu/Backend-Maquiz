@@ -64,14 +64,14 @@ export const loginUser = async (req: any, res: Response): Promise<any> => {
         res.cookie('access_token', response.access_token, {
             httpOnly: true, // Không cho JavaScript truy cập, chống XSS
             secure: true, // Bật khi deploy trên HTTPS
-            sameSite: 'strict', // Ngăn chặn CSRF
+            sameSite: 'none', // Ngăn chặn CSRF
             maxAge: 1000 * 60 * 24, // Hết hạn sau 15 phút (hoặc tùy vào token)
         });
         res.cookie('user_email', response.email, {
             httpOnly: false, // có thể truy cập cookie từ JavaScript (bảo mật)
             secure: true, // bật khi deploy
             maxAge: 1000 * 60 * 60 * 24, // Cookie hết hạn sau 1 ngày
-            sameSite: 'strict', // Ngăn chặn các cuộc tấn công CSRF
+            sameSite: 'none', // Ngăn chặn các cuộc tấn công CSRF
         });
         return res.status(200).json({ message: 'Đăng nhập thành công' });
     } catch (err) {
