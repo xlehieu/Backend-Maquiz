@@ -5,4 +5,5 @@ import * as PostController from '../app/controllers/post.controller';
 const postRouter = express.Router();
 postRouter.post('/createPost', authUserMiddleware, PostController.createPost);
 postRouter.get('/getPostByClassroomId', authUserMiddleware, PostController.getPostsByClassroomId);
+postRouter.delete('/deletePost/:id', authUserMiddleware, PostController.deletePostByPostId);
 export default postRouter;

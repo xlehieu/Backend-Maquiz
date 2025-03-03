@@ -16,3 +16,12 @@ export const getPostsByClassroomId = async (req: Request, res: Response): Promis
         return res.status(err.status || 500).json(err);
     }
 };
+export const deletePostByPostId = async (req:Request, res:Response):Promise<any> => {
+    try{
+        const response = await PostService.deletPostByPostId(req)
+        return res.status(200).json(response);
+    }
+    catch(err:any){
+        return res.status(err?.status||500).json(err);
+    }
+}

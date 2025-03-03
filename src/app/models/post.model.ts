@@ -1,4 +1,5 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Document,  Schema } from 'mongoose';
+import MongooseDelete, { SoftDeleteModel } from 'mongoose-delete';
 
 interface IPost extends Document {
     classroomId: mongoose.Types.ObjectId;
@@ -16,5 +17,9 @@ const PostSchema = new Schema<IPost>(
     },
     { timestamps: true },
 );
-const Post = mongoose.model<IPost>('post', PostSchema);
+PostSchema.plugin(MongooseDelete, {
+    deletedAt: true,
+    overrideMethods: true,
+})
+const Post = mongoose.model<IPost,SoftDeleteModel<IPost>>('post', PostSchema);
 export default Post;

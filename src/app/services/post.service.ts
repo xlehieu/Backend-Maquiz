@@ -52,3 +52,23 @@ export const getPostsByClassroomId = async (req: Request) => {
         }
     });
 };
+export const deletPostByPostId = (req:Request)=>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const {id} = req.params
+            const {user} = req.body
+            const post = await Post.findById(id)
+            if(! (post?.createdBy == user.id)){
+                return reject({status: 401, message:"unsuccessfully deleted"})
+            }
+            const postDeletInfo = await Post.deleteById(id)
+            if(postDeletInfo.deletedCount>0){
+                return resolve({message:"successfully deleted"})
+            }
+            return reject({message:"unsuccessfully deleted"})
+        }
+        catch(err){
+            return reject({status:500,message:"ERROR", error:err})
+        }
+    })
+}
