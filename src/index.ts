@@ -28,17 +28,12 @@ app.use(express.json({ limit: '30mb' }));
 app.use(cookieParser());
 app.use(corsMiddleware);
 routes(app);
-app.use((req, res, next) => {
-    console.log(`Request URL: ${req.originalUrl}`);
-    next();
-});
 
 // Middleware xử lý lỗi
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
     res.status(500).json({ error: 'Something went wrong!' });
 });
-console.log(process.env.ALLOW_ORIGIN);
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

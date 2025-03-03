@@ -21,14 +21,34 @@ export const createPost = (req: Request) => {
             const post = await Post.create({
                 classroomId,
                 content,
-                createdBy:findUser.id,
-                quizzes: [...(quizzes??[])]
+                createdBy: findUser.id,
+                quizzes: [...(quizzes ?? [])],
             });
-            if(post){
-                return resolve({message:'successfully create post',data:post})
+            if (post) {
+                return resolve({ message: 'successfully create post', data: post });
             }
         } catch (err) {
+            console.log(err);
             return reject({ message: 'ERROR', error: err });
+        }
+    });
+};
+export const getPostsByClassroomId = async (req: Request) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { classroomId } = req.body;
+            if (!classroomId) {
+                return reject({ status: 400, message: 'Thiếu dữ liệu' });
+            }
+            const posts = await Post.find({ classroomId })
+                .populate('createdBy', 'name avatar')
+                .populate('quizzes', 'name slug thumb subject');
+            if (!posts || posts.length === 0) {
+                return resolve({ message: 'No post found', data: [] });
+            }
+            return resolve({ message: 'Get posts successfully', data: posts });
+        } catch (err) {
+            return reject({ status: 500, message: 'ERROR', error: err });
         }
     });
 };

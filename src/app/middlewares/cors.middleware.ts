@@ -11,6 +11,5 @@ export default function corsMiddleware(req: Request, res: Response, next: NextFu
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours in seconds
     if (req.method === 'OPTIONS') return res.status(200).end();
-
     next();
 }

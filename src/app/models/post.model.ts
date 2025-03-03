@@ -5,7 +5,6 @@ interface IPost extends Document {
     content: string;
     quizzes: mongoose.Types.ObjectId[];
     createdBy?: mongoose.Types.ObjectId;
-    createdAt?: Date;
 }
 
 const PostSchema = new Schema<IPost>(

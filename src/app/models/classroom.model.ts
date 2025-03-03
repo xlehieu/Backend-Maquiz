@@ -1,13 +1,11 @@
 import mongoose, { Document, Types, Schema } from 'mongoose';
-import { imageClassThumbnailDefault } from '../../constants';
-import { generateUniqueRandomString } from '../../utils';
 
 export interface IClassroom extends Document {
     name: string;
     subject: string;
     students: Types.ObjectId[];
     teacher: Types.ObjectId;
-    post: Types.ObjectId[];
+    posts: Types.ObjectId[];
     classCode: string;
     thumb: string;
 }
@@ -18,7 +16,7 @@ const classroomSchema = new Schema<IClassroom>(
         subject: { type: String, required: true },
         teacher: { type: Schema.Types.ObjectId, ref: 'user', required: true },
         students: [{ type: Schema.Types.ObjectId, ref: 'user', default: [] }],
-        post: [{ type: Schema.Types.ObjectId, ref: 'post', default: [] }],
+        posts: [{ type: Schema.Types.ObjectId, ref: 'post', default: [] }],
         thumb: { type: String },
     },
     { timestamps: true },

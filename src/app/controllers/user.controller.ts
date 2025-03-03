@@ -69,7 +69,7 @@ export const loginUser = async (req: any, res: Response): Promise<any> => {
         });
         res.cookie('user_email', response.email, {
             httpOnly: false, // có thể truy cập cookie từ JavaScript (bảo mật)
-            secure: true, // bật khi deploy
+            secure: false, // bật khi deploy
             maxAge: 1000 * 60 * 60 * 24, // Cookie hết hạn sau 1 ngày
             sameSite: 'none', // Ngăn chặn các cuộc tấn công CSRF
         });

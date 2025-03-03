@@ -8,3 +8,11 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
         return res.status(500).json(err);
     }
 };
+export const getPostsByClassroomId = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const posts = await PostService.getPostsByClassroomId(req);
+        return res.status(200).json(posts);
+    } catch (err: any) {
+        return res.status(err.status || 500).json(err);
+    }
+};

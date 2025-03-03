@@ -1,9 +1,10 @@
 import { Request } from 'express';
-import ClassRoom from '../models/classroom.model';
+import Classroom from '../models/classroom.model';
 import mongoose, { Types } from 'mongoose';
 import User from '../models/user.model';
 import { generateUniqueRandomString } from '../../utils';
 import { imageClassThumbnailDefault } from '../../constants';
+import Post from '../models/post.model';
 export const getUserClassrooms = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -11,11 +12,11 @@ export const getUserClassrooms = (req: Request) => {
             const findUser = await User.findById(user.id);
             if (!findUser) return reject({ message: 'Không tìm thấy người dùng' });
             const teacherId = user?.id && Types.ObjectId.isValid(user.id) ? user.id : new Types.ObjectId(user.id);
-            const myClassrooms = await ClassRoom.find({ teacher: teacherId })
+            const myClassrooms = await Classroom.find({ teacher: teacherId })
                 .select(['name', 'classCode', 'thumb'])
                 .populate('teacher', 'name avatar');
             //toán tử in, tìm các phần tử trong dánh sách, như trên là tìm _id của Classroom nào có trong enrolledClassrooms
-            const enrolledClassrooms = await ClassRoom.find({
+            const enrolledClassrooms = await Classroom.find({
                 _id: {
                     $in: findUser.enrolledClassrooms,
                 },
@@ -58,7 +59,7 @@ export const createClassroom = (req: Request) => {
             }
             classCode = classCode;
             const thumb = imageClassThumbnailDefault[Math.floor(Math.random() * imageClassThumbnailDefault.length)];
-            const classroom = await ClassRoom.create({ name, subject, teacher: user.id, thumb, classCode });
+            const classroom = await Classroom.create({ name, subject, teacher: user.id, thumb, classCode });
             teacher.myClassrooms.push(classroom.id);
             await teacher.save();
             if (classroom) {
@@ -76,22 +77,20 @@ export const getClassroomDetail = (req: Request) => {
             if (typeof classCode === 'string' && !classCode?.trim()) {
                 return reject({ status: 400, message: 'Thiếu dữ liệu' });
             }
-            const classroomDetail = await ClassRoom.findOne({ classCode: classCode }).select('-_id');
+            const classroomDetail = await Classroom.findOne({ classCode: classCode })
+                .select('classCode name posts students subject teacher thumb')
+                .populate('teacher', 'name avatar')
+                .populate('students', 'name avatar');
+            if (!classroomDetail) return reject({ status: 400, message: 'Không tìm thấy lớp học' });
+            const posts = await Post.find({ classroomId: classroomDetail?.id })
+                .select('createdBy content createdAt quizzes')
+                .populate('quizzes', 'name subject slug thumb')
+                .populate('createdBy', 'avatar name email');
             if (!classroomDetail) return reject({ status: 400, message: 'Không tìm thấy dữ liệu lớp học' });
-            const students = await User.find({
-                _id: {
-                    $in: classroomDetail?.students,
-                },
-            }).select(['-_id', 'name', 'avatar']);
-            const teacher = await User.find({
-                _id: {
-                    $in: classroomDetail.teacher,
-                },
-            }).select(['-_id', 'name', 'avatar']);
-            console.log(students);
-            const data = Object.assign(classroomDetail, { students }, { teacher });
+            const data = Object.assign(classroomDetail, { posts });
             return resolve({ message: 'Successfully fetched classroom', data: data });
         } catch (err) {
+            console.log(err);
             return reject({ message: 'ERROR', error: err });
         }
     });
@@ -105,7 +104,7 @@ export const enrollInClassroom = (req: Request) => {
             if (!classCode || !findUser) {
                 return reject({ status: 400, message: 'Thiếu dữ liệu' });
             }
-            const classroomDetail = await ClassRoom.findOne({ classCode: classCode });
+            const classroomDetail = await Classroom.findOne({ classCode: classCode });
             if (!classroomDetail) return reject({ status: 400, message: 'Không tìm thấy dữ liệu lớp học' });
             if (classroomDetail.students.some((student) => student == userId)) {
                 return reject({ message: 'Bạn đã ở trong lớp học rồi!!!' });
