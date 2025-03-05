@@ -76,12 +76,16 @@ export const getUserDetail = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { id } = req.body.user;
-            const user = await User.findById(id);
+            const user = await User.findById(id).select('name email phone avatar address quizAccessHis');
+            if (!user) return reject('User not found');
+            if (Array.isArray(user.quizAccessHis)) {
+                await user.populate('quizAccessHis', 'name thumb slug createdAt accessCount examCount'); //populate cũng lấy dữ liệu từ database nên cũng là bất đồng bộ
+            }
+            console.log(user);
             if (user) {
-                const { name, email, phone, avatar, address } = user;
                 return resolve({
                     message: 'Successfully fetched user',
-                    data: { name, email, phone, avatar, address },
+                    data: user,
                 });
             }
             return reject({
@@ -131,37 +135,35 @@ export const loginUser = (req: Request): Promise<any> => {
 export const updateUser = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { id, email } = req.body.user;
+            const { avatar, address, phone, name, email } = req.body;
+            if (!avatar || !address || !phone || !name || !email)
+                return reject({ status: 404, message: 'Thiếu dữ liệu' });
+            const { id } = req.body.user;
             if (!validateEmail(email)) {
                 reject({
-                    status: 'Error',
+                    status: 401,
                     message: 'Email không hợp lệ',
                 });
             }
+            console.log('hello');
             const checkIdUser = await User.findById(id);
-            if (checkIdUser) {
-                const checkEmailUser = await User.findOne({
-                    email: req?.body?.email,
-                });
-                if (checkEmailUser?.id !== id) {
-                    resolve({
-                        status: 'Error',
-                        message: 'Email đã tồn tại',
-                    });
-                }
-            } else {
-                resolve({
-                    status: 'Error',
+            if (!checkIdUser) {
+                return reject({
+                    status: 401,
                     message: 'Không có dữ liệu người dùng',
                 });
             }
-
-            const avatar = await uploadAndGetLink(req?.body?.avatar, constants.uploadAvatars);
-
+            console.log('Hello');
+            const avatarURL = await uploadAndGetLink(avatar, constants.uploadAvatars);
+            if (!avatarURL) {
+                return reject({ status: 404, message: 'Lỗi sửa hình ảnh' });
+            }
             console.log(avatar);
             const updateInfo = {
-                ...req.body,
-                avatar: avatar ?? checkIdUser?.avatar,
+                name,
+                address,
+                phone,
+                avatar: avatarURL ?? checkIdUser?.avatar,
             };
             await User.findByIdAndUpdate(id, updateInfo);
             resolve({

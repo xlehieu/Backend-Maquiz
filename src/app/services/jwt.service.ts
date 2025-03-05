@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const generalToken = (payload: any) => {
-    const token = jwt.sign({ ...payload }, process.env.ACCESS_TOKEN as any, { expiresIn: '12h' });
+    const token = jwt.sign({ ...payload }, process.env.ACCESS_TOKEN as any, { expiresIn: '24h' });
     return token;
 };
 export const generalRefreshToken = (payload: any) => {

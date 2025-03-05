@@ -1,7 +1,7 @@
 import 'tsconfig-paths/register';
 import express from 'express';
 import * as QuizController from '../app/controllers/quiz.controller';
-import { authUserMiddleware } from '../app/middlewares/auth.middleware';
+import { authUserMiddleware, checkToken } from '../app/middlewares/auth.middleware';
 const quizRouter = express.Router();
 // Authentication required
 quizRouter.post('/create', authUserMiddleware, QuizController.createQuiz);
@@ -13,6 +13,6 @@ quizRouter.put('/updateQuizQuestion', authUserMiddleware, QuizController.updateQ
 quizRouter.delete('/deleteQuiz/:id', authUserMiddleware, QuizController.deleteQuiz);
 quizRouter.get('/getQuizForExam/:slug', authUserMiddleware, QuizController.getQuizForExam);
 // No authentication required
-quizRouter.get('/getQuizPreview/:slug', QuizController.getQuizPreview);
+quizRouter.get('/getQuizPreview/:slug', checkToken, QuizController.getQuizPreview);
 quizRouter.get('/getDiscoveryQuizzes', QuizController.getDiscoveryQuizzes);
 export default quizRouter;

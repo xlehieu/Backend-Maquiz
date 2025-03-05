@@ -1,6 +1,5 @@
 import { imageDB } from '../firebase/config';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
 export function generateUniqueRandomString(length: number): string {
@@ -36,6 +35,7 @@ export const uploadAndGetLink = async (imageData: string, folderName: string): P
         const url = await getDownloadURL(data.ref);
         return url;
     } catch (err) {
+        console.log(err);
         return null;
     }
 };

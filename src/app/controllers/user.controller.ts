@@ -65,7 +65,7 @@ export const loginUser = async (req: any, res: Response): Promise<any> => {
             httpOnly: true, // Không cho JavaScript truy cập, chống XSS
             secure: true, // Bật khi deploy trên HTTPS
             sameSite: 'none', // Ngăn chặn CSRF
-            maxAge: 1000 * 60 * 24, // Hết hạn sau 15 phút (hoặc tùy vào token)
+            maxAge: 1000 * 60 * 60 * 24, // Hết hạn sau 15 phút (hoặc tùy vào token)
         });
         res.cookie('user_email', response.email, {
             httpOnly: false, // có thể truy cập cookie từ JavaScript (bảo mật)
@@ -83,8 +83,9 @@ export const updateUser = async (req: Request, res: Response): Promise<any> => {
     try {
         const response = await userService.updateUser(req);
         return res.status(200).json(response);
-    } catch (err) {
-        return res.status(500).json(err);
+    } catch (err: any) {
+        console.log(err);
+        return res.status(err.status || 500).json(err);
     }
 };
 export const deleteUser = async (req: Request, res: Response): Promise<any> => {

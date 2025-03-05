@@ -190,33 +190,22 @@ export const getQuizPreview = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { slug } = req.params;
-            const findQuiz = await Quiz.findOne({ slug: slug });
-            if (findQuiz) {
-                const findUser = await User.findById(findQuiz.user);
-                const { name, description, subject, school, thumb, quiz, accessCount, examCount, createdAt } = findQuiz;
-                findQuiz.accessCount = Number(accessCount + 1);
-                await findQuiz.save();
-                return resolve({
-                    message: 'Successfully fetched',
-                    data: {
-                        name,
-                        description,
-                        subject,
-                        school,
-                        thumb,
-                        quiz,
-                        accessCount,
-                        examCount,
-                        createdAt,
-                        slug,
-                        user: {
-                            name: findUser?.name,
-                            avatar: findUser?.avatar,
-                        },
-                    },
-                });
+            const userId = req.user;
+            const findQuiz = await Quiz.findOne({ slug: slug })
+                .select('name description subject school thumb quiz accessCount examCount createdAt slug')
+                .populate('user', 'name avatar');
+            if (!findQuiz) return reject({ message: 'Không tìm thấy bài trắc nghiệm' });
+            findQuiz.accessCount++;
+            findQuiz.save(); // không dùng await cho server nhanh =))))))))
+
+            if (userId) {
+                const findUser = await User.findById(userId);
+                if (findUser) {
+                    if (!findUser.quizAccessHis.includes(findQuiz.id)) findUser.quizAccessHis?.push(findQuiz!.id);
+                    findUser.save();
+                }
             }
-            return reject({ message: 'Không tìm thấy bài trắc nghiệm' });
+            return resolve({ message: 'Successfully fetched quiz', data: findQuiz });
         } catch (err) {
             return reject({ message: 'Lỗi', error: err });
         }

@@ -8,15 +8,15 @@
         "strict": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        // "baseUrl": "./src",
-        // "paths": {
-        //     "@types/*": ["@types/*"], // Alias cho thư mục @types
-        //     "@models/*": ["app/models/*"], // Alias cho thư mục models
-        //     "@controllers/*": ["app/controllers/*"], // Alias cho thư mục controllers
-        //     "@services/*": ["app/services/*"],
-        //     "@middlewares/*": ["app/middlewares/*"],
-        //     "~/*": ["./*"]
-        // },
+        "baseUrl": "./src",
+        "paths": {
+            "@types/*": ["@types/*"], // Alias cho thư mục @types
+            "@models/*": ["app/models/*"], // Alias cho thư mục models
+            "@controllers/*": ["app/controllers/*"], // Alias cho thư mục controllers
+            "@services/*": ["app/services/*"],
+            "@middlewares/*": ["app/middlewares/*"],
+            "~/*": ["./*"]
+        },
         "typeRoots": ["src/@types", "node_modules/@types"], // Thêm thư mục @types của bạn
         "sourceMap": true,
         "declaration": false,
