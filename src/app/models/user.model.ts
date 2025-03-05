@@ -33,7 +33,7 @@ const UserSchema = new Schema<IUser>(
         quizzes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'quiz', default: [] }],
         myClassrooms: [{ type: mongoose.Schema.Types.ObjectId, ref: 'classroom', default: [] }],
         enrolledClassrooms: [{ type: mongoose.Schema.Types.ObjectId, ref: 'classroom', default: [] }],
-        quizAccessHis: [{ type: mongoose.Schema.Types.ObjectId, ref: 'classroom', default: [] }],
+        quizAccessHis: [{ type: mongoose.Schema.Types.ObjectId, ref: 'quiz', default: [] }],
     },
     {
         timestamps: true,

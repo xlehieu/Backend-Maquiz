@@ -79,9 +79,8 @@ export const getUserDetail = (req: Request) => {
             const user = await User.findById(id).select('name email phone avatar address quizAccessHis');
             if (!user) return reject('User not found');
             if (Array.isArray(user.quizAccessHis)) {
-                await user.populate('quizAccessHis', 'name thumb slug createdAt accessCount examCount'); //populate cũng lấy dữ liệu từ database nên cũng là bất đồng bộ
+                await user.populate('quizAccessHis', '-_id name thumb slug createdAt accessCount examCount'); //populate cũng lấy dữ liệu từ database nên cũng là bất đồng bộ
             }
-            console.log(user);
             if (user) {
                 return resolve({
                     message: 'Successfully fetched user',
