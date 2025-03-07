@@ -83,7 +83,7 @@ export const getUserDetail = (req: Request) => {
             );
             if (!user) return reject('User not found');
             if (Array.isArray(user.quizAccessHistory)) {
-                await user.populate('quizAccessHistory', '-_id name thumb slug createdAt accessCount examCount'); //populate cũng lấy dữ liệu từ database nên cũng là bất đồng bộ
+                await user.populate('quizAccessHistory', 'name thumb slug createdAt accessCount examCount'); //populate cũng lấy dữ liệu từ database nên cũng là bất đồng bộ
                 await user.populate('favoriteQuiz', 'name thumb slug createdAt accessCount examCount');
             }
             const examHistory = await ExamHistory.find({
