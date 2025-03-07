@@ -1,4 +1,4 @@
-import * as QuizHistory from '@services/examHistory.service';
+import * as QuizHistory from '../services/examHistory.service';
 import { Request, Response } from 'express';
 
 export const saveQuizHistory = async (req: Request, res: Response): Promise<any> => {
