@@ -5,8 +5,8 @@ import * as JWTService from '../services/jwt.service';
 import constants from '../../constants';
 import { Types } from 'mongoose';
 import { Request } from 'express';
-import Quiz from '@models/quiz.model';
-import ExamHistory from '@models/examHistory.model';
+import Quiz from '../models/quiz.model';
+import ExamHistory from '../models/examHistory.model';
 interface IUserInfo {
     email: string;
     password: string;

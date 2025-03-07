@@ -1,5 +1,5 @@
-import ExamHistory from '@models/examHistory.model';
-import User from '@models/user.model';
+import ExamHistory from '../models/examHistory.model';
+import User from '../models/user.model';
 import { Request } from 'express';
 
 export const saveExamHistory = (req: Request) => {
