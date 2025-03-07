@@ -1,0 +1,45 @@
+import ExamHistory from '@models/examHistory.model';
+import User from '@models/user.model';
+import { Request } from 'express';
+
+export const saveExamHistory = (req: Request) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { quizId, score, answerChoices, user } = req.body;
+            if (!quizId || !score || !answerChoices || !user?.id) {
+                return reject({ message: 'Thiếu dữ liệu' });
+            }
+            const findUser = await User.findById(user?.id);
+            if (!findUser) return reject({ message: 'Lỗi xác thực', status: 401 });
+            const createQuizHistoryInfo = await ExamHistory.create({
+                user: user.id,
+                quiz: quizId,
+                score: score,
+                answerChoices: answerChoices,
+            });
+            findUser.examHistory = createQuizHistoryInfo.id;
+            const saveInfo = findUser.save();
+            if (!createQuizHistoryInfo || !saveInfo) return reject({ message: 'Lỗi, không tạo được lịch sử làm bài' });
+            resolve({ message: 'Create quiz history success' });
+        } catch (err) {
+            reject({ message: 'Lỗi', error: err });
+        }
+    });
+};
+
+export const getExamHistory = (req: Request) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { userId } = req.body;
+            if (!userId) {
+                return reject({ message: 'Thiếu dữ liệu' });
+            }
+            const findUser = await User.findById(userId);
+            if (!findUser) return reject({ message: 'Không tìm thấy người dùng', status: 401 });
+            const myQuizHistory = await ExamHistory.find({ user: userId });
+            resolve({ message: 'Fetch success', data: myQuizHistory });
+        } catch (err) {
+            reject({ message: 'Lỗi', error: err });
+        }
+    });
+};

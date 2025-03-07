@@ -201,7 +201,8 @@ export const getQuizPreview = (req: Request) => {
             if (userId) {
                 const findUser = await User.findById(userId);
                 if (findUser) {
-                    if (!findUser.quizAccessHis.includes(findQuiz.id)) findUser.quizAccessHis?.push(findQuiz!.id);
+                    if (!findUser.quizAccessHistory.includes(findQuiz.id))
+                        findUser.quizAccessHistory?.push(findQuiz!.id);
                     findUser.save();
                 }
             }
@@ -211,7 +212,7 @@ export const getQuizPreview = (req: Request) => {
         }
     });
 };
-// xem trước khi làm bài
+//
 export const getQuizForExam = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -219,12 +220,14 @@ export const getQuizForExam = (req: Request) => {
             const findQuiz = await Quiz.findOne({ slug: slug });
             if (findQuiz) {
                 const findUser = await User.findById(findQuiz.user);
-                const { name, description, subject, school, thumb, quiz, accessCount, examCount, createdAt } = findQuiz;
+                const { id, name, description, subject, school, thumb, quiz, accessCount, examCount, createdAt } =
+                    findQuiz;
                 findQuiz.examCount = Number(examCount + 1);
                 await findQuiz.save();
                 return resolve({
                     message: 'Successfully fetched',
                     data: {
+                        id,
                         name,
                         description,
                         subject,

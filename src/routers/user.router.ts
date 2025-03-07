@@ -13,6 +13,8 @@ router.post('/log-out', UserController.logoutUser);
 router.post('/refresh-token', UserController.refreshToken);
 router.delete('/delete/:id', authMiddleware, UserController.deleteUser);
 router.get('/detail', authUserMiddleware, UserController.getUserDetail);
+router.patch('/favorite-quiz', authUserMiddleware, UserController.favoriteQuiz);
+router.get('/favorite-quiz', authUserMiddleware, UserController.getMyFavoriteQuiz);
 router.get('/', authMiddleware, UserController.getAllUser);
 
 export default router;

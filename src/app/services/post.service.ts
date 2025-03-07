@@ -12,11 +12,11 @@ export const createPost = (req: Request) => {
             }
             const findUser = await User.findById(user.id);
             if (!findUser) {
-                return reject({ status: 404, message: 'User không tồn tại' });
+                return reject({ status: 401, message: 'User không tồn tại' });
             }
             const classroom = await Classroom.findById(classroomId);
             if (!classroom) {
-                return reject({ status: 404, message: 'Class không tồn tại' });
+                return reject({ status: 400, message: 'Class không tồn tại' });
             }
             const post = await Post.create({
                 classroomId,
@@ -36,7 +36,7 @@ export const createPost = (req: Request) => {
 export const getPostsByClassroomId = async (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { classroomId } = req.body;
+            const { classroomId } = req.params;
             if (!classroomId) {
                 return reject({ status: 400, message: 'Thiếu dữ liệu' });
             }
@@ -52,23 +52,24 @@ export const getPostsByClassroomId = async (req: Request) => {
         }
     });
 };
-export const deletPostByPostId = (req:Request)=>{
-    return new Promise(async(resolve,reject)=>{
-        try{
-            const {id} = req.params
-            const {user} = req.body
-            const post = await Post.findById(id)
-            if(! (post?.createdBy == user.id)){
-                return reject({status: 401, message:"unsuccessfully deleted"})
+export const deletePostByPostId = (req: Request) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { id } = req.params;
+            const { user } = req.body;
+            const post = await Post.findById(id);
+            if (!(post?.createdBy == user.id)) {
+                return reject({ status: 400, message: 'unsuccessfully deleted' });
             }
-            const postDeletInfo = await Post.deleteById(id)
-            if(postDeletInfo.deletedCount>0){
-                return resolve({message:"successfully deleted"})
+            const postDeleteInfo: any = await Post.deleteById(id);
+            console.log('postDeleteInfo', postDeleteInfo);
+            if (postDeleteInfo.matchedCount > 0) {
+                return resolve({ message: 'successfully deleted' });
             }
-            return reject({message:"unsuccessfully deleted"})
+            return reject({ message: 'unsuccessfully deleted' });
+        } catch (err) {
+            console.log(err);
+            return reject({ status: 500, message: 'ERROR', error: err });
         }
-        catch(err){
-            return reject({status:500,message:"ERROR", error:err})
-        }
-    })
-}
+    });
+};

@@ -5,6 +5,8 @@ import * as JWTService from '../services/jwt.service';
 import constants from '../../constants';
 import { Types } from 'mongoose';
 import { Request } from 'express';
+import Quiz from '@models/quiz.model';
+import ExamHistory from '@models/examHistory.model';
 interface IUserInfo {
     email: string;
     password: string;
@@ -76,15 +78,23 @@ export const getUserDetail = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { id } = req.body.user;
-            const user = await User.findById(id).select('name email phone avatar address quizAccessHis');
+            const user = await User.findById(id).select(
+                'name email phone avatar address quizAccessHistory examHistory favoriteQuiz',
+            );
             if (!user) return reject('User not found');
-            if (Array.isArray(user.quizAccessHis)) {
-                await user.populate('quizAccessHis', '-_id name thumb slug createdAt accessCount examCount'); //populate cũng lấy dữ liệu từ database nên cũng là bất đồng bộ
+            if (Array.isArray(user.quizAccessHistory)) {
+                await user.populate('quizAccessHistory', '-_id name thumb slug createdAt accessCount examCount'); //populate cũng lấy dữ liệu từ database nên cũng là bất đồng bộ
+                await user.populate('favoriteQuiz', 'name thumb slug createdAt accessCount examCount');
             }
+            const examHistory = await ExamHistory.find({
+                _id: {
+                    $in: user.examHistory,
+                },
+            }).populate('quiz', '-_id name thumb slug');
             if (user) {
                 return resolve({
                     message: 'Successfully fetched user',
-                    data: user,
+                    data: Object.assign(user, { examHistory }),
                 });
             }
             return reject({
@@ -193,6 +203,42 @@ export const deleteUser = (id: Types.ObjectId) => {
             }
         } catch (err) {
             reject(err);
+        }
+    });
+};
+export const favoriteQuiz = (req: Request) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { user, quizId } = req.body;
+            if (!user.id || !quizId) return reject({ message: 'Missing data', status: 404 });
+            const findUser = await User.findById(user.id);
+            if (!findUser) return reject({ message: 'User not found', status: 401 });
+            if (!Array.isArray(findUser.favoriteQuiz)) {
+                findUser.favoriteQuiz = [];
+            } else {
+                if (findUser.favoriteQuiz.includes(quizId)) {
+                    findUser.favoriteQuiz = findUser.favoriteQuiz.filter((id) => id != quizId);
+                } else {
+                    findUser.favoriteQuiz.push(quizId);
+                }
+            }
+            findUser.save();
+            return resolve({ message: 'success' });
+        } catch (err) {
+            return reject({ message: 'Lỗi', error: err });
+        }
+    });
+};
+export const getMyFavoriteQuiz = (req: Request) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { user } = req.body;
+            const findUser = await User.findById(user.id);
+            if (!findUser) return reject({ message: 'User not found', status: 401 });
+            const favoriteQuiz = await Quiz.find({ _id: { $in: findUser.favoriteQuiz } });
+            resolve({ message: 'fetched successfully', data: favoriteQuiz });
+        } catch (err) {
+            return reject({ message: 'Lỗi', error: err });
         }
     });
 };

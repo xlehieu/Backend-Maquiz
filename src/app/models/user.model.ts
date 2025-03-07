@@ -16,7 +16,9 @@ interface IUser extends SoftDeleteDocument {
     quizzes: Types.ObjectId[]; // Lưu �� dùng Types.ObjectId thay vì mongoose.Schema.Types.ObjectId
     myClassrooms: Types.ObjectId[];
     enrolledClassrooms: Types.ObjectId[]; // Lưu �� dùng Types.ObjectId thay vì mongoose.Schema.Types.ObjectId
-    quizAccessHis: Types.ObjectId[];
+    quizAccessHistory: Types.ObjectId[];
+    examHistory: Types.ObjectId[];
+    favoriteQuiz: Types.ObjectId[];
 }
 const UserSchema = new Schema<IUser>(
     {
@@ -33,7 +35,9 @@ const UserSchema = new Schema<IUser>(
         quizzes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'quiz', default: [] }],
         myClassrooms: [{ type: mongoose.Schema.Types.ObjectId, ref: 'classroom', default: [] }],
         enrolledClassrooms: [{ type: mongoose.Schema.Types.ObjectId, ref: 'classroom', default: [] }],
-        quizAccessHis: [{ type: mongoose.Schema.Types.ObjectId, ref: 'quiz', default: [] }],
+        quizAccessHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'quiz', default: [] }],
+        examHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'examHistory', default: [] }],
+        favoriteQuiz: [{ type: mongoose.Schema.Types.ObjectId, ref: 'quiz', default: [] }],
     },
     {
         timestamps: true,

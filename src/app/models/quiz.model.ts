@@ -37,6 +37,7 @@ export interface IQuiz extends Document {
     schoolYear?: number;
     educationLevel?: string[];
     nameNoAccent?: string;
+    questionCount?: number;
 }
 const QuizSchema = new Schema<IQuiz>(
     {
@@ -74,6 +75,7 @@ const QuizSchema = new Schema<IQuiz>(
         schoolYear: { type: Number },
         educationLevel: { type: [String] }, //cách khai báo một mảng các chuỗi
         nameNoAccent: { type: String }, // Tạo thêm một field mới để lưu tên bài trắc nghiệm không dấu
+        questionCount: { type: Number, default: 0 },
     },
     { timestamps: true },
 );
@@ -103,8 +105,18 @@ QuizSchema.pre<IQuiz>('validate', async function (next) {
     next();
 });
 QuizSchema.pre<IQuiz>('save', function (next) {
-    this.nameNoAccent = removeAccents(this.name.toLowerCase());
-    next();
+    try {
+        if (!this.name) throw new Error('Quiz name is required.');
+        this.nameNoAccent = removeAccents(this.name.toLowerCase());
+        if (Array.isArray(this.quiz)) {
+            this.questionCount = this.quiz.reduce((accumulator, partCurrent) => {
+                return accumulator + partCurrent?.questions?.length;
+            }, 0);
+        }
+        next();
+    } catch (err) {
+        throw new Error('Lỗi');
+    }
 });
 QuizSchema.plugin(MongooseDelete, {
     deletedAt: true,

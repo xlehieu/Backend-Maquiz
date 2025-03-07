@@ -121,3 +121,19 @@ export const logoutUser = async (req: Request, res: Response): Promise<any> => {
         return res.status(500).json(err);
     }
 };
+export const favoriteQuiz = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const response = await userService.favoriteQuiz(req);
+        return res.status(200).json(response);
+    } catch (err: any) {
+        return res.status(err.status || 500).json(err);
+    }
+};
+export const getMyFavoriteQuiz = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const response = await userService.getMyFavoriteQuiz(req);
+        return res.status(200).json(response);
+    } catch (err: any) {
+        return res.status(err.status || 500).json(err);
+    }
+};
