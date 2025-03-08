@@ -9,14 +9,15 @@ import corsMiddleware from './app/middlewares/cors.middleware';
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;
-database.connect();
-//dung lượng tối đa mà client có thể submit lên server
-app.use(express.urlencoded({ extended: true, limit: '30mb' }));
-
-//session là cái để mình kiểm soát được trạng thái của người dùng
-app.use(
-    session({
-        secret: String(process.env.SESSION_SECRET),
+async function connect(){
+    await database.connect();
+    //dung lượng tối đa mà client có thể submit lên server
+    app.use(express.urlencoded({ extended: true, limit: '30mb' }));
+    
+    //session là cái để mình kiểm soát được trạng thái của người dùng
+    app.use(
+        session({
+            secret: String(process.env.SESSION_SECRET),
         resave: false,
         saveUninitialized: true,
         cookie: { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, secure: true }, // 10 minutes
@@ -37,4 +38,6 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+}
+connect()
 export default app;
