@@ -2,6 +2,8 @@ import * as userService from '../services/user.service';
 import * as JWTService from '../services/jwt.service';
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
+import dotenv from 'dotenv'
+dotenv.config()
 export const getAllUser = async (req: Request, res: Response): Promise<any> => {
     try {
         const response = await userService.getAllUser();
@@ -63,13 +65,13 @@ export const loginUser = async (req: any, res: Response): Promise<any> => {
         //req.session.access_token = response.access_token;
         res.cookie('access_token', response.access_token, {
             httpOnly: true, // Không cho JavaScript truy cập, chống XSS
-            secure: true, // Bật khi deploy trên HTTPS
+            secure: process.env.NODE_ENV==='production', // Bật khi deploy trên HTTPS
             sameSite: 'none', // Ngăn chặn CSRF
             maxAge: 1000 * 60 * 60 * 24, // Hết hạn sau 15 phút (hoặc tùy vào token)
         });
         res.cookie('user_email', response.email, {
             httpOnly: false, // có thể truy cập cookie từ JavaScript (bảo mật)
-            secure: true, // bật khi deploy
+            secure: process.env.NODE_ENV==='production',
             maxAge: 1000 * 60 * 60 * 24, // Cookie hết hạn sau 1 ngày
             sameSite: 'none', // Ngăn chặn các cuộc tấn công CSRF
         });
@@ -105,8 +107,16 @@ export const deleteUser = async (req: Request, res: Response): Promise<any> => {
 };
 export const logoutUser = async (req: Request, res: Response): Promise<any> => {
     try {
-        res.clearCookie('access_token');
-        res.clearCookie('user_email');
+        res.clearCookie('access_token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV==='production',
+            sameSite: 'none',
+        });
+        res.clearCookie('user_email', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV==='production',
+            sameSite: 'none',
+        });
         // Xóa session
         // req.session.destroy((err) => {
         //     if (err) {
