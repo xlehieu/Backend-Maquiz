@@ -55,7 +55,6 @@ export const registerUser = async (req: any, res: Response): Promise<any> => {
         });
         return res.status(200).json(response);
     } catch (err) {
-        console.log(err);
         return res.status(500).json(err);
     }
 };
@@ -65,13 +64,13 @@ export const loginUser = async (req: any, res: Response): Promise<any> => {
         //req.session.access_token = response.access_token;
         res.cookie('access_token', response.access_token, {
             httpOnly: true, // Không cho JavaScript truy cập, chống XSS
-            secure: process.env.NODE_ENV==='production', // Bật khi deploy trên HTTPS
+            secure: true, // Bật khi deploy trên HTTPS
             sameSite: 'none', // Ngăn chặn CSRF
             maxAge: 1000 * 60 * 60 * 24, // Hết hạn sau 15 phút (hoặc tùy vào token)
         });
         res.cookie('user_email', response.email, {
             httpOnly: false, // có thể truy cập cookie từ JavaScript (bảo mật)
-            secure: process.env.NODE_ENV==='production',
+            secure: true,
             maxAge: 1000 * 60 * 60 * 24, // Cookie hết hạn sau 1 ngày
             sameSite: 'none', // Ngăn chặn các cuộc tấn công CSRF
         });
@@ -109,14 +108,15 @@ export const logoutUser = async (req: Request, res: Response): Promise<any> => {
     try {
         res.clearCookie('access_token', {
             httpOnly: true,
-            secure: process.env.NODE_ENV==='production',
+            secure: true,
             sameSite: 'none',
         });
         res.clearCookie('user_email', {
             httpOnly: true,
-            secure: process.env.NODE_ENV==='production',
+            secure: true,
             sameSite: 'none',
         });
+            
         // Xóa session
         // req.session.destroy((err) => {
         //     if (err) {
