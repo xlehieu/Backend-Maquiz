@@ -6,15 +6,45 @@ import { Request } from 'express';
 export const getQuizzes = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { id } = req.body.user;
+            const { id } = req.user;
+            const {limit,skip} = req.query
             const findUser = await User.findById(id);
             if (!findUser) {
                 reject({
                     message: 'Lỗi xác thực',
                 });
             }
-            const quizzes = await Quiz.find({ user: findUser?._id });
-            resolve({ message: 'Successfully fetched quizzes', data: quizzes });
+            if(!findUser) return resolve({status:401,message:"Unauthorization"})
+            //trong aggregate chạy các pipeline- các stage ý
+            const quizzes = await Quiz.aggregate([
+                {
+                    $match:{
+                        user: new Types.ObjectId(id)
+                    }
+                },
+                {
+                    //facet giup chay cac pipeline con
+                    // nhu o trong huop nay la ban dau se dem so quiz duoc lay ra
+                    $facet:{
+                        metadata:[{
+                            $count:"total"
+                        }],
+                        data:[
+                            {
+                                $skip:isNaN(Number(skip))?0:Number(skip)
+                            },
+                            {
+                                $limit:isNaN(Number(limit))?12:Number(limit)
+                            }
+                        ]
+                    }
+                }
+            ])
+            const result = {
+                total: quizzes[0].metadata[0].total || 0,
+                quizzes: quizzes[0].data || []
+            }
+            resolve({ message: 'Successfully fetched quizzes', data: result });
         } catch (err) {
             return reject({ message: 'Lỗi', error: err });
         }
@@ -46,7 +76,8 @@ export const createQuiz = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             //trong middleware đã truyền user có chứa id theo rồi
-            const { name, description, subject, school, topic, schoolYear, educationLevel, user, thumb } = req.body;
+            const user =  req.user
+            const { name, description, subject, school, topic, schoolYear, educationLevel, thumb } = req.body;
             const userInfo = await User.findById(user.id);
             if (!userInfo) {
                 reject({
@@ -135,7 +166,8 @@ export const createQuestion = (req: Request) => {
 export const updateQuizGeneralInfo = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { id, name, description, subject, school, topic, schoolYear, educationLevel, user, thumb } = req.body;
+            const user = req.user
+            const { id, name, description, subject, school, topic, schoolYear, educationLevel, thumb } = req.body;
             const findQuiz = await Quiz.findById(id);
             if (!findQuiz) {
                 return reject({ message: 'Không tìm thấy bài trắc nghiệm tương ứng' });
@@ -190,7 +222,7 @@ export const getQuizPreview = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { slug } = req.params;
-            const userId = req.user;
+            const id = req.user;
             const findQuiz = await Quiz.findOne({ slug: slug })
                 .select('name description subject school thumb quiz accessCount examCount createdAt slug')
                 .populate('user', 'name avatar');
@@ -198,8 +230,8 @@ export const getQuizPreview = (req: Request) => {
             findQuiz.accessCount++;
             findQuiz.save(); // không dùng await cho server nhanh =))))))))
 
-            if (userId) {
-                const findUser = await User.findById(userId);
+            if (id) {
+                const findUser = await User.findById(id);
                 if (findUser) {
                     if (!findUser.quizAccessHistory.includes(findQuiz.id))
                         findUser.quizAccessHistory?.push(findQuiz!.id);
@@ -256,7 +288,7 @@ export const getQuizForExam = (req: Request) => {
 export const getDiscoveryQuizzes = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { page, topic, school_year, education_level, name } = req.query;
+            const { limit,skip, topic, school_year, education_level, name } = req.query;
             let query = {};
             if (topic && typeof topic === 'string') {
                 Object.assign(query, {
@@ -281,7 +313,9 @@ export const getDiscoveryQuizzes = (req: Request) => {
                     ],
                 });
             }
-            const quizzes = await Quiz.find(query).skip(page ? Number(page) * 10 : 0);
+            const quizzes = await Quiz.find(query)
+                .limit(isNaN(Number(limit)) ? 12 : Number(limit))
+                .skip(isNaN(Number(skip)) ? 0 : Number(skip));
             if (quizzes) {
                 resolve({ message: 'Successfully fetched', data: quizzes });
             }

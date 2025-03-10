@@ -6,7 +6,8 @@ import { Request } from 'express';
 export const createPost = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { classroomId, content, quizzes, user } = req.body;
+            const user = req.user
+            const { classroomId, content, quizzes } = req.body;
             if (!classroomId || !content || !user?.id) {
                 return reject({ status: 400, message: 'Thiếu dữ liệu' });
             }
@@ -56,7 +57,7 @@ export const deletePostByPostId = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { id } = req.params;
-            const { user } = req.body;
+            const user= req.user
             const post = await Post.findById(id);
             if (!(post?.createdBy == user.id)) {
                 return reject({ status: 400, message: 'unsuccessfully deleted' });

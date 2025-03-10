@@ -18,7 +18,6 @@ var salt = bcrypt.genSaltSync(10);
 export const registerUser = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log(req.body);
             const { email, password, confirmPassword, phone } = req.body;
             if (!email || !password || !confirmPassword || !phone) {
                 return reject({
@@ -77,12 +76,18 @@ export const getAllUser = () => {
 export const getUserDetail = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { id } = req.body.user;
+            const { id } = req.user;
             const user = await User.findById(id).select(
                 'name email phone avatar address quizAccessHistory examHistory favoriteQuiz',
             );
             if (!user) return reject('User not found');
-            if (Array.isArray(user.quizAccessHistory)) {
+            if (Array.isArray(user.quizAccessHistory) &&Array.isArray(user.favoriteQuiz) ) {
+                if (user.quizAccessHistory.length > 10) {
+                    user.quizAccessHistory = user.quizAccessHistory.slice(0, 10);
+                }
+                if (user.favoriteQuiz.length > 10) {
+                    user.favoriteQuiz = user.favoriteQuiz.slice(0, 10);
+                }
                 await user.populate('quizAccessHistory', 'name thumb slug createdAt accessCount examCount'); //populate cũng lấy dữ liệu từ database nên cũng là bất đồng bộ
                 await user.populate('favoriteQuiz', 'name thumb slug createdAt accessCount examCount');
             }
@@ -147,7 +152,7 @@ export const updateUser = (req: Request) => {
             const { avatar, address, phone, name, email } = req.body;
             if (!avatar || !address || !phone || !name || !email)
                 return reject({ status: 404, message: 'Thiếu dữ liệu' });
-            const { id } = req.body.user;
+            const { id } = req.user;
             if (!validateEmail(email)) {
                 reject({
                     status: 401,
@@ -209,7 +214,8 @@ export const deleteUser = (id: Types.ObjectId) => {
 export const favoriteQuiz = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { user, quizId } = req.body;
+            const user = req.user
+            const {quizId } = req.body;
             if (!user.id || !quizId) return reject({ message: 'Missing data', status: 404 });
             const findUser = await User.findById(user.id);
             if (!findUser) return reject({ message: 'User not found', status: 401 });
@@ -232,7 +238,7 @@ export const favoriteQuiz = (req: Request) => {
 export const getMyFavoriteQuiz = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { user } = req.body;
+            const user = req.body;
             const findUser = await User.findById(user.id);
             if (!findUser) return reject({ message: 'User not found', status: 401 });
             const favoriteQuiz = await Quiz.find({ _id: { $in: findUser.favoriteQuiz } });

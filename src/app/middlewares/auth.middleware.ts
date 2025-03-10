@@ -59,7 +59,7 @@ export const authUserMiddleware = (req: any, res: Response, next: NextFunction):
                 });
             }
         }
-        req.body.user = user;
+        req.user = user;
         next();
     });
 };

@@ -5,7 +5,8 @@ import { Request } from 'express';
 export const saveExamHistory = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { quizId, score, answerChoices, user } = req.body;
+            const {user} = req.user
+            const { quizId, score, answerChoices } = req.body;
             if (!quizId || !score || !answerChoices || !user?.id) {
                 return reject({ message: 'Thiếu dữ liệu' });
             }
@@ -17,7 +18,7 @@ export const saveExamHistory = (req: Request) => {
                 score: score,
                 answerChoices: answerChoices,
             });
-            findUser.examHistory = createQuizHistoryInfo.id;
+            findUser.examHistory.push(createQuizHistoryInfo.id);
             const saveInfo = findUser.save();
             if (!createQuizHistoryInfo || !saveInfo) return reject({ message: 'Lỗi, không tạo được lịch sử làm bài' });
             resolve({ message: 'Create quiz history success' });
@@ -30,13 +31,14 @@ export const saveExamHistory = (req: Request) => {
 export const getExamHistory = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { userId } = req.body;
+            const { userId} = req.user;
+            const {skip} = req.query
             if (!userId) {
                 return reject({ message: 'Thiếu dữ liệu' });
             }
             const findUser = await User.findById(userId);
             if (!findUser) return reject({ message: 'Không tìm thấy người dùng', status: 401 });
-            const myQuizHistory = await ExamHistory.find({ user: userId });
+            const myQuizHistory = await ExamHistory.find({ user: userId }).limit(12).skip(Number(skip)||0);
             resolve({ message: 'Fetch success', data: myQuizHistory });
         } catch (err) {
             reject({ message: 'Lỗi', error: err });
