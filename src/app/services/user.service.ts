@@ -81,12 +81,14 @@ export const getUserDetail = (req: Request) => {
                 'name email phone avatar address quizAccessHistory examHistory favoriteQuiz',
             );
             if (!user) return reject('User not found');
+            const countQuizAccessHistory =user?.quizAccessHistory?.length
+            const countFavoriteQuiz = user?.favoriteQuiz?.length 
             if (Array.isArray(user.quizAccessHistory) &&Array.isArray(user.favoriteQuiz) ) {
-                if (user.quizAccessHistory.length > 10) {
-                    user.quizAccessHistory = user.quizAccessHistory.slice(0, 10);
+                if (user.quizAccessHistory.length > 12) {
+                    user.quizAccessHistory = user.quizAccessHistory.slice(0, 12);
                 }
-                if (user.favoriteQuiz.length > 10) {
-                    user.favoriteQuiz = user.favoriteQuiz.slice(0, 10);
+                if (user.favoriteQuiz.length > 12) {
+                    user.favoriteQuiz = user.favoriteQuiz.slice(0, 12);
                 }
                 await user.populate('quizAccessHistory', 'name thumb slug createdAt accessCount examCount'); //populate cũng lấy dữ liệu từ database nên cũng là bất đồng bộ
                 await user.populate('favoriteQuiz', 'name thumb slug createdAt accessCount examCount');
@@ -99,7 +101,7 @@ export const getUserDetail = (req: Request) => {
             if (user) {
                 return resolve({
                     message: 'Successfully fetched user',
-                    data: Object.assign(user, { examHistory }),
+                    data: Object.assign(user,{countQuizAccessHistory, countFavoriteQuiz}, { examHistory }),
                 });
             }
             return reject({
@@ -134,6 +136,7 @@ export const loginUser = (req: Request): Promise<any> => {
             const access_token = JWTService.generalToken({
                 id: userCheck!.id,
                 isAdmin: userCheck!.isAdmin,
+                isActive: userCheck!.active
             });
             return resolve({
                 email: userCheck?.email,
@@ -248,3 +251,25 @@ export const getMyFavoriteQuiz = (req: Request) => {
         }
     });
 };
+
+export const getQuizzAccessHistory = (req:Request)=>{
+    return new Promise(async(resolve,reject)=>{
+        try{
+            const {id} = req.user
+            const {skip,limit}= req.query
+            const findUser = await User.findById(id)
+            if(!findUser) return reject({status:401,message:"Unauthorization"})
+            const countAccessQuizHistory = findUser?.quizAccessHistory?.length
+            const quizzes = await Quiz.aggregate([
+                {
+                    $match:{
+                        user:findUser.id
+                    }
+                }
+            ])
+        }
+        catch(err){
+            return reject({message:"Lỗi",error:err})
+        }
+    })
+}

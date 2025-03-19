@@ -31,8 +31,7 @@ export const getQuizzes = (req: Request) => {
                         }],
                         data:[
                             {
-                                $skip:isNaN(Number(skip))?0:Number(skip)
-                            },
+                                $skip:isNaN(Number(skip))?0:Number(skip)},
                             {
                                 $limit:isNaN(Number(limit))?12:Number(limit)
                             }
@@ -46,6 +45,7 @@ export const getQuizzes = (req: Request) => {
             }
             resolve({ message: 'Successfully fetched quizzes', data: result });
         } catch (err) {
+            console.log(err)
             return reject({ message: 'Lỗi', error: err });
         }
     });
@@ -288,38 +288,68 @@ export const getQuizForExam = (req: Request) => {
 export const getDiscoveryQuizzes = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { limit,skip, topic, school_year, education_level, name } = req.query;
-            let query = {};
-            if (topic && typeof topic === 'string') {
-                Object.assign(query, {
-                    topic: { $in: topic.split(',') },
-                });
-            }
-            if (school_year && typeof school_year === 'string') {
-                Object.assign(query, {
-                    education_level: { $in: school_year.split(',').map(Number) },
-                });
-            }
-            if (education_level && typeof education_level === 'string') {
-                Object.assign(query, {
-                    school_year: { $in: education_level.split(',') },
-                });
-            }
-            if (name && typeof name === 'string') {
-                Object.assign(query, {
-                    $or: [
-                        { nameNoAccent: { $regex: new RegExp(name, 'i') } },
-                        { name: { $regex: new RegExp(name, 'i') } },
-                    ],
-                });
-            }
-            const quizzes = await Quiz.find(query)
-                .limit(isNaN(Number(limit)) ? 12 : Number(limit))
-                .skip(isNaN(Number(skip)) ? 0 : Number(skip));
-            if (quizzes) {
-                resolve({ message: 'Successfully fetched', data: quizzes });
-            }
+            const { limit, skip, topic, school_year, education_level, name } = req.query;
+
+// Khởi tạo điều kiện lọc rỗng (không lọc nếu không có gì)
+const matchStage: any = {};
+
+// Tìm kiếm theo tên nếu có
+if (name && typeof name === "string") {
+    matchStage.$or = [
+        { nameNoAccent: { $regex: new RegExp(name, "i") } },
+        { name: { $regex: new RegExp(name, "i") } }
+    ];
+}
+
+// Lọc theo topic nếu có
+if (topic && typeof topic === "string") {
+    const topicsArray = topic.split(",");
+    if (topicsArray.length > 0) {
+        matchStage.topic = { $in: topicsArray };
+    }
+}
+
+// Lọc theo school_year nếu có
+if (school_year && typeof school_year === "string") {
+    const schoolYearArray = school_year.split(",");
+    if (schoolYearArray.length > 0) {
+        matchStage.school_year = { $in: schoolYearArray };
+    }
+}
+
+// Lọc theo education_level nếu có
+if (education_level && typeof education_level === "string") {
+    const educationLevelArray = education_level.split(",");
+    if (educationLevelArray.length > 0) {
+        matchStage.education_level = { $in: educationLevelArray };
+    }
+}
+
+const aggregationPipeline: any[] = [];
+
+// Chỉ thêm `$match` nếu có điều kiện lọc
+if (Object.keys(matchStage).length > 0) {
+    aggregationPipeline.push({ $match: matchStage });
+}
+
+aggregationPipeline.push({
+    $facet: {
+        metadata: [{ $count: "total" }],
+        data: [
+            { $skip: isNaN(Number(skip)) ? 0 : Number(skip) },
+            { $limit: isNaN(Number(limit)) ? 12 : Number(limit) }
+        ]
+    }
+});
+
+const quizzes = await Quiz.aggregate(aggregationPipeline);
+const data = Object.assign(quizzes[0].metadata[0],{quizzes:quizzes[0].data})
+if (quizzes) {
+    resolve({ message: "Successfully fetched", data: data });
+}
+
         } catch (err) {
+            console.log(err)
             return reject({ message: 'Lỗi', error: err });
         }
     });

@@ -5,7 +5,7 @@ import { NextFunction, Response } from 'express';
 interface IUser {}
 dotenv.config();
 //dùng để check admin
-export const authMiddleware = (req: any, res: Response, next: NextFunction) => {
+export const checkIsAdmin = (req: any, res: Response, next: NextFunction) => {
     let cookies: any = req.cookies.access_token; //ở index.ts đã dùng app.use(cookieParser) nên ở d
     //if (!req.session.access_token) return res.status(401).json(); //.json({ status: 'ERR', message: 'Bạn cần đăng nhập' });
     cookies = cookies?.split(' ')[1];
@@ -59,6 +59,11 @@ export const authUserMiddleware = (req: any, res: Response, next: NextFunction):
                 });
             }
         }
+        if(user.active === false)
+            return res.status(401).json({
+                status: 'ERROR',
+                message: 'The account has been banned',
+            });
         req.user = user;
         next();
     });
