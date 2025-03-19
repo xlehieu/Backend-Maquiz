@@ -18,12 +18,28 @@ export const checkIsAdmin = (req: any, res: Response, next: NextFunction) => {
                 message: 'Lỗi',
             });
         }
+        const currentTime = Math.floor(Date.now() / 1000); // Lấy thời gian hiện tại tính theo giây
+        if (user.exp && user.exp < currentTime) {
+            return res.status(401).json({
+                status: 'ERROR',
+                message: 'Token expired',
+            });
+        }
+        if (user && 'id' in user) {
+            if (!user?.id) {
+                return res.status(401).json({
+                    status: 'ERROR',
+                    message: 'Authentication error',
+                });
+            }
+        }
         if (!user.isAdmin) {
             return res.status(403).json({
                 status: 'ERROR',
                 message: 'Authentication error',
             });
         }
+        req.user = user;
         next();
     });
 };
@@ -59,7 +75,7 @@ export const authUserMiddleware = (req: any, res: Response, next: NextFunction):
                 });
             }
         }
-        if(user.active === false)
+        if (user.active === false)
             return res.status(401).json({
                 status: 'ERROR',
                 message: 'The account has been banned',

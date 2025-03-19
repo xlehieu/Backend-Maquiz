@@ -8,6 +8,7 @@ export interface IClassroom extends Document {
     posts: Types.ObjectId[];
     classCode: string;
     thumb: string;
+    isDisabled: boolean;
 }
 const classroomSchema = new Schema<IClassroom>(
     {
@@ -18,6 +19,7 @@ const classroomSchema = new Schema<IClassroom>(
         students: [{ type: Schema.Types.ObjectId, ref: 'user', default: [] }],
         posts: [{ type: Schema.Types.ObjectId, ref: 'post', default: [] }],
         thumb: { type: String },
+        isDisabled: { type: Boolean, default: false },
     },
     { timestamps: true },
 );

@@ -38,6 +38,7 @@ export interface IQuiz extends Document {
     educationLevel?: string[];
     nameNoAccent?: string;
     questionCount?: number;
+    isDisabled?: boolean;
 }
 const QuizSchema = new Schema<IQuiz>(
     {
@@ -76,6 +77,7 @@ const QuizSchema = new Schema<IQuiz>(
         educationLevel: { type: [String] }, //cách khai báo một mảng các chuỗi
         nameNoAccent: { type: String }, // Tạo thêm một field mới để lưu tên bài trắc nghiệm không dấu
         questionCount: { type: Number, default: 0 },
+        isDisabled: { type: Boolean, required: true, default: false },
     },
     { timestamps: true },
 );
