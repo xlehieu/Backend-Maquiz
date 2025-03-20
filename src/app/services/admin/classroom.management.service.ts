@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import Classroom from '../../models/classroom.model';
 
-export const getListClassroom = (req: Request) => {
+export const getClassroomList = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { skip, limit, classCode } = req.query;
@@ -10,13 +10,14 @@ export const getListClassroom = (req: Request) => {
                 matchStage['classCode'] = new RegExp(String(classCode), 'i');
             }
             const aggregationPipeline = [];
-            Object.keys(matchStage).length > 0;
-            aggregationPipeline.push(matchStage);
+            if (Object.keys(matchStage).length > 0) aggregationPipeline.push(matchStage);
             aggregationPipeline.push({
                 $facet: {
-                    metadata: {
-                        $count: 'total',
-                    },
+                    metadata: [
+                        {
+                            $count: 'total',
+                        },
+                    ],
                     data: [
                         { $skip: isNaN(Number(skip)) ? 0 : Number(skip) },
                         { $limit: isNaN(Number(limit)) ? 20 : Number(limit) },
@@ -32,14 +33,13 @@ export const getListClassroom = (req: Request) => {
     });
 };
 
-export const setDisabledClassroom = (req: Request) => {
+export const setClassroomDisabled = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { id } = req.params;
             if (!id) return reject({ status: 404, message: 'id is required' });
             const classroom = await Classroom.findById(id);
             if (!classroom) return reject({ status: 404, message: 'Classroom not found' });
-            if (!('Disabled' in classroom)) classroom.isDisabled = false;
             classroom.isDisabled = !classroom.isDisabled;
             classroom.save();
             return resolve({ message: 'successfully update classroom' });

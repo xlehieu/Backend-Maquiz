@@ -55,6 +55,7 @@ export const registerUser = (req: Request) => {
             if (user) {
                 return resolve({
                     status: 'OK',
+                    email,
                 });
             }
         } catch (err) {
@@ -81,9 +82,9 @@ export const getUserDetail = (req: Request) => {
                 'name email phone avatar address quizAccessHistory examHistory favoriteQuiz',
             );
             if (!user) return reject('User not found');
-            const countQuizAccessHistory =user?.quizAccessHistory?.length
-            const countFavoriteQuiz = user?.favoriteQuiz?.length 
-            if (Array.isArray(user.quizAccessHistory) &&Array.isArray(user.favoriteQuiz) ) {
+            const countQuizAccessHistory = user?.quizAccessHistory?.length;
+            const countFavoriteQuiz = user?.favoriteQuiz?.length;
+            if (Array.isArray(user.quizAccessHistory) && Array.isArray(user.favoriteQuiz)) {
                 if (user.quizAccessHistory.length > 12) {
                     user.quizAccessHistory = user.quizAccessHistory.slice(0, 12);
                 }
@@ -101,7 +102,7 @@ export const getUserDetail = (req: Request) => {
             if (user) {
                 return resolve({
                     message: 'Successfully fetched user',
-                    data: Object.assign(user,{countQuizAccessHistory, countFavoriteQuiz}, { examHistory }),
+                    data: Object.assign(user, { countQuizAccessHistory, countFavoriteQuiz }, { examHistory }),
                 });
             }
             return reject({
@@ -136,7 +137,7 @@ export const loginUser = (req: Request): Promise<any> => {
             const access_token = JWTService.generalToken({
                 id: userCheck!.id,
                 isAdmin: userCheck!.isAdmin,
-                isActive: userCheck!.active
+                isActive: userCheck!.active,
             });
             return resolve({
                 email: userCheck?.email,
@@ -217,8 +218,8 @@ export const deleteUser = (id: Types.ObjectId) => {
 export const favoriteQuiz = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const user = req.user
-            const {quizId } = req.body;
+            const user = req.user;
+            const { quizId } = req.body;
             if (!user.id || !quizId) return reject({ message: 'Missing data', status: 404 });
             const findUser = await User.findById(user.id);
             if (!findUser) return reject({ message: 'User not found', status: 401 });
@@ -252,24 +253,23 @@ export const getMyFavoriteQuiz = (req: Request) => {
     });
 };
 
-export const getQuizzAccessHistory = (req:Request)=>{
-    return new Promise(async(resolve,reject)=>{
-        try{
-            const {id} = req.user
-            const {skip,limit}= req.query
-            const findUser = await User.findById(id)
-            if(!findUser) return reject({status:401,message:"Unauthorization"})
-            const countAccessQuizHistory = findUser?.quizAccessHistory?.length
+export const getQuizzAccessHistory = (req: Request) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { id } = req.user;
+            const { skip, limit } = req.query;
+            const findUser = await User.findById(id);
+            if (!findUser) return reject({ status: 401, message: 'Unauthorization' });
+            const countAccessQuizHistory = findUser?.quizAccessHistory?.length;
             const quizzes = await Quiz.aggregate([
                 {
-                    $match:{
-                        user:findUser.id
-                    }
-                }
-            ])
+                    $match: {
+                        user: findUser.id,
+                    },
+                },
+            ]);
+        } catch (err) {
+            return reject({ message: 'Lỗi', error: err });
         }
-        catch(err){
-            return reject({message:"Lỗi",error:err})
-        }
-    })
-}
+    });
+};

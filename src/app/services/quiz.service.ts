@@ -7,45 +7,48 @@ export const getQuizzes = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { id } = req.user;
-            const {limit,skip} = req.query
+            const { limit, skip } = req.query;
             const findUser = await User.findById(id);
             if (!findUser) {
                 reject({
                     message: 'Lỗi xác thực',
                 });
             }
-            if(!findUser) return resolve({status:401,message:"Unauthorization"})
+            if (!findUser) return resolve({ status: 401, message: 'unauthorized' });
             //trong aggregate chạy các pipeline- các stage ý
             const quizzes = await Quiz.aggregate([
                 {
-                    $match:{
-                        user: new Types.ObjectId(id)
-                    }
+                    $match: {
+                        user: new Types.ObjectId(id),
+                    },
                 },
                 {
                     //facet giup chay cac pipeline con
                     // nhu o trong huop nay la ban dau se dem so quiz duoc lay ra
-                    $facet:{
-                        metadata:[{
-                            $count:"total"
-                        }],
-                        data:[
+                    $facet: {
+                        metadata: [
                             {
-                                $skip:isNaN(Number(skip))?0:Number(skip)},
+                                $count: 'total',
+                            },
+                        ],
+                        data: [
                             {
-                                $limit:isNaN(Number(limit))?12:Number(limit)
-                            }
-                        ]
-                    }
-                }
-            ])
+                                $skip: isNaN(Number(skip)) ? 0 : Number(skip),
+                            },
+                            {
+                                $limit: isNaN(Number(limit)) ? 12 : Number(limit),
+                            },
+                        ],
+                    },
+                },
+            ]);
             const result = {
                 total: quizzes[0].metadata[0].total || 0,
-                quizzes: quizzes[0].data || []
-            }
+                quizzes: quizzes[0].data || [],
+            };
             resolve({ message: 'Successfully fetched quizzes', data: result });
         } catch (err) {
-            console.log(err)
+            console.log(err);
             return reject({ message: 'Lỗi', error: err });
         }
     });
@@ -76,7 +79,7 @@ export const createQuiz = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             //trong middleware đã truyền user có chứa id theo rồi
-            const user =  req.user
+            const user = req.user;
             const { name, description, subject, school, topic, schoolYear, educationLevel, thumb } = req.body;
             const userInfo = await User.findById(user.id);
             if (!userInfo) {
@@ -166,7 +169,7 @@ export const createQuestion = (req: Request) => {
 export const updateQuizGeneralInfo = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const user = req.user
+            const user = req.user;
             const { id, name, description, subject, school, topic, schoolYear, educationLevel, thumb } = req.body;
             const findQuiz = await Quiz.findById(id);
             if (!findQuiz) {
@@ -290,66 +293,65 @@ export const getDiscoveryQuizzes = (req: Request) => {
         try {
             const { limit, skip, topic, school_year, education_level, name } = req.query;
 
-// Khởi tạo điều kiện lọc rỗng (không lọc nếu không có gì)
-const matchStage: any = {};
+            // Khởi tạo điều kiện lọc rỗng (không lọc nếu không có gì)
+            const matchStage: any = {};
 
-// Tìm kiếm theo tên nếu có
-if (name && typeof name === "string") {
-    matchStage.$or = [
-        { nameNoAccent: { $regex: new RegExp(name, "i") } },
-        { name: { $regex: new RegExp(name, "i") } }
-    ];
-}
+            // Tìm kiếm theo tên nếu có
+            if (name && typeof name === 'string') {
+                matchStage.$or = [
+                    { nameNoAccent: { $regex: new RegExp(name, 'i') } },
+                    { name: { $regex: new RegExp(name, 'i') } },
+                ];
+            }
 
-// Lọc theo topic nếu có
-if (topic && typeof topic === "string") {
-    const topicsArray = topic.split(",");
-    if (topicsArray.length > 0) {
-        matchStage.topic = { $in: topicsArray };
-    }
-}
+            // Lọc theo topic nếu có
+            if (topic && typeof topic === 'string') {
+                const topicsArray = topic.split(',');
+                if (topicsArray.length > 0) {
+                    matchStage.topic = { $in: topicsArray };
+                }
+            }
 
-// Lọc theo school_year nếu có
-if (school_year && typeof school_year === "string") {
-    const schoolYearArray = school_year.split(",");
-    if (schoolYearArray.length > 0) {
-        matchStage.school_year = { $in: schoolYearArray };
-    }
-}
+            // Lọc theo school_year nếu có
+            if (school_year && typeof school_year === 'string') {
+                const schoolYearArray = school_year.split(',');
+                if (schoolYearArray.length > 0) {
+                    matchStage.school_year = { $in: schoolYearArray };
+                }
+            }
 
-// Lọc theo education_level nếu có
-if (education_level && typeof education_level === "string") {
-    const educationLevelArray = education_level.split(",");
-    if (educationLevelArray.length > 0) {
-        matchStage.education_level = { $in: educationLevelArray };
-    }
-}
+            // Lọc theo education_level nếu có
+            if (education_level && typeof education_level === 'string') {
+                const educationLevelArray = education_level.split(',');
+                if (educationLevelArray.length > 0) {
+                    matchStage.education_level = { $in: educationLevelArray };
+                }
+            }
 
-const aggregationPipeline: any[] = [];
+            const aggregationPipeline: any[] = [];
 
-// Chỉ thêm `$match` nếu có điều kiện lọc
-if (Object.keys(matchStage).length > 0) {
-    aggregationPipeline.push({ $match: matchStage });
-}
+            // Chỉ thêm `$match` nếu có điều kiện lọc
+            if (Object.keys(matchStage).length > 0) {
+                aggregationPipeline.push({ $match: matchStage });
+            }
 
-aggregationPipeline.push({
-    $facet: {
-        metadata: [{ $count: "total" }],
-        data: [
-            { $skip: isNaN(Number(skip)) ? 0 : Number(skip) },
-            { $limit: isNaN(Number(limit)) ? 12 : Number(limit) }
-        ]
-    }
-});
+            aggregationPipeline.push({
+                $facet: {
+                    metadata: [{ $count: 'total' }],
+                    data: [
+                        { $skip: isNaN(Number(skip)) ? 0 : Number(skip) },
+                        { $limit: isNaN(Number(limit)) ? 12 : Number(limit) },
+                    ],
+                },
+            });
 
-const quizzes = await Quiz.aggregate(aggregationPipeline);
-const data = Object.assign(quizzes[0].metadata[0],{quizzes:quizzes[0].data})
-if (quizzes) {
-    resolve({ message: "Successfully fetched", data: data });
-}
-
+            const quizzes = await Quiz.aggregate(aggregationPipeline);
+            const data = Object.assign(quizzes[0].metadata[0], { quizzes: quizzes[0].data });
+            if (quizzes) {
+                resolve({ message: 'Successfully fetched', data: data });
+            }
         } catch (err) {
-            console.log(err)
+            console.log(err);
             return reject({ message: 'Lỗi', error: err });
         }
     });

@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import * as ClassManageController from '../../app/controllers/admin/classroom.manage.controller';
+import * as ClassroomManageController from '../../app/controllers/admin/classroom.management.controller';
 const classManageRouter = Router();
 
-classManageRouter.get('/quizzes', ClassManageController.getClassesList);
-classManageRouter.patch('/set-disabled', ClassManageController.setDisabledClass);
+classManageRouter.get('/classroomList', ClassroomManageController.getClassroomList);
+classManageRouter.patch('/disabledClassroom/:id', ClassroomManageController.setDisabledClass);
 
 export default classManageRouter;

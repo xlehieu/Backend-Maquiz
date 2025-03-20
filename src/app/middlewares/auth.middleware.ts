@@ -9,6 +9,7 @@ export const checkIsAdmin = (req: any, res: Response, next: NextFunction) => {
     let cookies: any = req.cookies.access_token; //ở index.ts đã dùng app.use(cookieParser) nên ở d
     //if (!req.session.access_token) return res.status(401).json(); //.json({ status: 'ERR', message: 'Bạn cần đăng nhập' });
     cookies = cookies?.split(' ')[1];
+    if (!cookies) return res.status(401).json({ status: 'ERR', message: 'Bạn cần đăng nhập' });
     //hàm verify này nhận dối số thứ 2 là khóa để giải mã
     // ở hàm general token bên jwtservice cũng là khóa process.env.access_token nên nó giải mã được
     jwt.verify(cookies, process.env.ACCESS_TOKEN as any, function (err: any, user: any) {
