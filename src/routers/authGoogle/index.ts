@@ -3,7 +3,6 @@ import passport from 'passport';
 import dotenv from 'dotenv';
 import * as AuthGoogleController from '../../app/controllers/auth/authGoogle.controller';
 dotenv.config();
-import * as JWTService from '../../app/services/jwt.service';
 const authGoogleRouter = Router();
 // Route login Google
 authGoogleRouter.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
