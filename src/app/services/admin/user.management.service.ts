@@ -41,7 +41,7 @@ export const setActiveUser = (req: Request) => {
             if (!id) return reject({ status: 404, message: 'id is required' });
             const user = await User.findById(id);
             if (!user) return reject({ status: 404, message: 'Khong tim thay user' });
-            user.active = !user.active;
+            user.isActive = !user.isActive;
             user.save();
             return resolve({ message: 'successfully update user' });
         } catch (err) {

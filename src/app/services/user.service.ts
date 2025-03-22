@@ -77,32 +77,32 @@ export const getAllUser = () => {
 export const getUserDetail = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { id } = req.user;
-            const user = await User.findById(id).select(
+            const user = req.userInfo;
+            const findUser = await User.findById(user?.id).select(
                 'name email phone avatar address quizAccessHistory examHistory favoriteQuiz',
             );
-            if (!user) return reject('User not found');
-            const countQuizAccessHistory = user?.quizAccessHistory?.length;
-            const countFavoriteQuiz = user?.favoriteQuiz?.length;
-            if (Array.isArray(user.quizAccessHistory) && Array.isArray(user.favoriteQuiz)) {
-                if (user.quizAccessHistory.length > 12) {
-                    user.quizAccessHistory = user.quizAccessHistory.slice(0, 12);
+            if (!findUser) return reject('User not found');
+            const countQuizAccessHistory = findUser?.quizAccessHistory?.length;
+            const countFavoriteQuiz = findUser?.favoriteQuiz?.length;
+            if (Array.isArray(findUser.quizAccessHistory) && Array.isArray(findUser.favoriteQuiz)) {
+                if (findUser.quizAccessHistory.length > 12) {
+                    findUser.quizAccessHistory = findUser.quizAccessHistory.slice(0, 12);
                 }
-                if (user.favoriteQuiz.length > 12) {
-                    user.favoriteQuiz = user.favoriteQuiz.slice(0, 12);
+                if (findUser.favoriteQuiz.length > 12) {
+                    findUser.favoriteQuiz = findUser.favoriteQuiz.slice(0, 12);
                 }
-                await user.populate('quizAccessHistory', 'name thumb slug createdAt accessCount examCount'); //populate cũng lấy dữ liệu từ database nên cũng là bất đồng bộ
-                await user.populate('favoriteQuiz', 'name thumb slug createdAt accessCount examCount');
+                await findUser.populate('quizAccessHistory', 'name thumb slug createdAt accessCount examCount'); //populate cũng lấy dữ liệu từ database nên cũng là bất đồng bộ
+                await findUser.populate('favoriteQuiz', 'name thumb slug createdAt accessCount examCount');
             }
             const examHistory = await ExamHistory.find({
                 _id: {
-                    $in: user.examHistory,
+                    $in: findUser.examHistory,
                 },
             }).populate('quiz', '-_id name thumb slug');
-            if (user) {
+            if (findUser) {
                 return resolve({
                     message: 'Successfully fetched user',
-                    data: Object.assign(user, { countQuizAccessHistory, countFavoriteQuiz }, { examHistory }),
+                    data: Object.assign(findUser, { countQuizAccessHistory, countFavoriteQuiz }, { examHistory }),
                 });
             }
             return reject({
@@ -110,7 +110,7 @@ export const getUserDetail = (req: Request) => {
                 message: 'Xin lỗi! Không tìm thấy dữ liệu người dùng',
             });
         } catch (err) {
-            console.log(err);
+            console.log('Loi ne: ', err);
             reject(err);
         }
     });
@@ -137,7 +137,7 @@ export const loginUser = (req: Request): Promise<any> => {
             const access_token = JWTService.generalToken({
                 id: userCheck!.id,
                 isAdmin: userCheck!.isAdmin,
-                isActive: userCheck!.active,
+                isActive: userCheck!.isActive,
             });
             return resolve({
                 email: userCheck?.email,
@@ -145,7 +145,6 @@ export const loginUser = (req: Request): Promise<any> => {
                 access_token: `Bearer ${access_token}`,
             });
         } catch (err) {
-            console.log(err);
             reject(err);
         }
     });
@@ -156,7 +155,7 @@ export const updateUser = (req: Request) => {
             const { avatar, address, phone, name, email } = req.body;
             if (!avatar || !address || !phone || !name || !email)
                 return reject({ status: 404, message: 'Thiếu dữ liệu' });
-            const { id } = req.user;
+            const { id } = req.userInfo;
             if (!validateEmail(email)) {
                 reject({
                     status: 401,
@@ -218,7 +217,7 @@ export const deleteUser = (id: Types.ObjectId) => {
 export const favoriteQuiz = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const user = req.user;
+            const user = req.userInfo;
             const { quizId } = req.body;
             if (!user.id || !quizId) return reject({ message: 'Missing data', status: 404 });
             const findUser = await User.findById(user.id);
@@ -256,7 +255,7 @@ export const getMyFavoriteQuiz = (req: Request) => {
 export const getQuizzAccessHistory = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { id } = req.user;
+            const { id } = req.userInfo;
             const { skip, limit } = req.query;
             const findUser = await User.findById(id);
             if (!findUser) return reject({ status: 401, message: 'Unauthorization' });

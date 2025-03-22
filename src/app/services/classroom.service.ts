@@ -8,7 +8,7 @@ import Post from '../models/post.model';
 export const getUserClassrooms = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const user  = req.user;
+            const user = req.userInfo;
             const findUser = await User.findById(user.id);
             if (!findUser) return reject({ message: 'Không tìm thấy người dùng' });
             const teacherId = user?.id && Types.ObjectId.isValid(user.id) ? user.id : new Types.ObjectId(user.id);
@@ -40,7 +40,7 @@ export const getUserClassrooms = (req: Request) => {
 export const createClassroom = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const user = req.user
+            const user = req.userInfo;
             const { name, subject } = req.body;
             if (!name?.trim() || !subject?.trim()) {
                 if (!mongoose.Types.ObjectId.isValid(user?.id)) {
@@ -99,7 +99,7 @@ export const getClassroomDetail = (req: Request) => {
 export const enrollInClassroom = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const user = req.user
+            const user = req.userInfo;
             const { classCode } = req.body;
             const userId = user?.id && Types.ObjectId.isValid(user.id) ? user.id : null;
             const findUser = await User.findById(userId);

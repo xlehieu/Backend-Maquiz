@@ -1,20 +1,19 @@
 import { Router } from 'express';
 import passport from 'passport';
-import '../../auth/googleAuth';
 import dotenv from 'dotenv';
+import * as AuthGoogleController from '../../app/controllers/auth/authGoogle.controller';
 dotenv.config();
 import * as JWTService from '../../app/services/jwt.service';
 const authGoogleRouter = Router();
-
 // Route login Google
 authGoogleRouter.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 // Google callback
-authGoogleRouter.get('/auth/google/callback', passport.authenticate('google', { session: false }), (req, res) => {
-    const user = req.user as any;
-    const token = JWTService.generalToken({ id: user.id, displayName: user.displayName, email: user.emails[0].value });
-    res.redirect(`${process.env.ALLOW_ORIGIN}/login-success?token=${token}`);
-});
+authGoogleRouter.get(
+    '/auth/google/callback',
+    passport.authenticate('google', { session: false }),
+    AuthGoogleController.GoogleCallback,
+);
 
 // Check login
 authGoogleRouter.get('/auth/me', (req, res) => {
@@ -32,3 +31,5 @@ authGoogleRouter.get('/auth/logout', (req, res) => {
         res.redirect('http://localhost:3000');
     });
 });
+
+export default authGoogleRouter;

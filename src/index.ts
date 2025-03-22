@@ -1,13 +1,13 @@
 import express, { NextFunction, Request, Response } from 'express';
-import cors from 'cors';
 import dotenv from 'dotenv';
 import routes from './routers';
 import * as database from './db/mongodb';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import passport from 'passport';
+import './auth/googleAuth';
 import corsMiddleware from './app/middlewares/cors.middleware';
-import passportSetup from './auth/googleAuth';
+
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;

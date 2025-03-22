@@ -2,8 +2,8 @@ import * as userService from '../services/user.service';
 import * as JWTService from '../services/jwt.service';
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
-import dotenv from 'dotenv'
-dotenv.config()
+import dotenv from 'dotenv';
+dotenv.config();
 export const getAllUser = async (req: Request, res: Response): Promise<any> => {
     try {
         const response = await userService.getAllUser();
@@ -19,7 +19,6 @@ export const getUserDetail = async (req: Request, res: Response): Promise<any> =
         const response = await userService.getUserDetail(req);
         return res.status(200).json(response);
     } catch (err) {
-        console.log(err);
         return res.status(500).json({
             status: 'ERROR',
             message: err,
@@ -76,7 +75,6 @@ export const loginUser = async (req: any, res: Response): Promise<any> => {
         });
         return res.status(200).json({ message: 'Đăng nhập thành công' });
     } catch (err) {
-        console.log(err);
         return res.status(401).json(err);
     }
 };
@@ -116,7 +114,7 @@ export const logoutUser = async (req: Request, res: Response): Promise<any> => {
             secure: true,
             sameSite: 'none',
         });
-            
+
         // Xóa session
         // req.session.destroy((err) => {
         //     if (err) {

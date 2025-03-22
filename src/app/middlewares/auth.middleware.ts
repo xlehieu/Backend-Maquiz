@@ -40,7 +40,7 @@ export const checkIsAdmin = (req: any, res: Response, next: NextFunction) => {
                 message: 'Authentication error',
             });
         }
-        req.user = user;
+        req.userInfo = user;
         next();
     });
 };
@@ -81,7 +81,7 @@ export const authUserMiddleware = (req: any, res: Response, next: NextFunction):
                 status: 'ERROR',
                 message: 'The account has been banned',
             });
-        req.user = user;
+        req.userInfo = user;
         next();
     });
 };
@@ -99,7 +99,7 @@ export const checkToken = (req: any, res: Response, next: NextFunction): any => 
         if (err) {
             return res.status(401).json({ status: 'ERR', message: 'Token không hợp lệ' });
         }
-        req.user = user.id;
+        req.userInfo = user;
         return next();
     });
 };

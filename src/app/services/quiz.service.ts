@@ -6,7 +6,7 @@ import { Request } from 'express';
 export const getQuizzes = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { id } = req.user;
+            const { id } = req.userInfo;
             const { limit, skip } = req.query;
             const findUser = await User.findById(id);
             if (!findUser) {
@@ -79,7 +79,7 @@ export const createQuiz = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             //trong middleware đã truyền user có chứa id theo rồi
-            const user = req.user;
+            const user = req.userInfo;
             const { name, description, subject, school, topic, schoolYear, educationLevel, thumb } = req.body;
             const userInfo = await User.findById(user.id);
             if (!userInfo) {
@@ -169,7 +169,7 @@ export const createQuestion = (req: Request) => {
 export const updateQuizGeneralInfo = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const user = req.user;
+            const user = req.userInfo;
             const { id, name, description, subject, school, topic, schoolYear, educationLevel, thumb } = req.body;
             const findQuiz = await Quiz.findById(id);
             if (!findQuiz) {
@@ -225,7 +225,7 @@ export const getQuizPreview = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { slug } = req.params;
-            const id = req.user;
+            const id = req.userInfo;
             const findQuiz = await Quiz.findOne({ slug: slug })
                 .select('name description subject school thumb quiz accessCount examCount createdAt slug')
                 .populate('user', 'name avatar');
