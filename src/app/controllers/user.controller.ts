@@ -75,7 +75,7 @@ export const loginUser = async (req: any, res: Response): Promise<any> => {
         });
         return res.status(200).json({ message: 'Đăng nhập thành công' });
     } catch (err) {
-        return res.status(401).json(err);
+        return res.status(500).json(err);
     }
 };
 export const updateUser = async (req: Request, res: Response): Promise<any> => {

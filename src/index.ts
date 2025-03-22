@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import passport from 'passport';
 import './auth/googleAuth';
+import cors from 'cors';
 import corsMiddleware from './app/middlewares/cors.middleware';
 
 dotenv.config();
@@ -30,7 +31,22 @@ async function connect() {
     app.use(express.json({ limit: '30mb' }));
     // app.use(bodyParser.json());
     app.use(cookieParser());
-    app.use(corsMiddleware);
+    const allowedOrigins = [
+        'https://my-maquiz.vercel.app', // Frontend
+        'https://accounts.google.com', // Google OAuth
+    ];
+    app.use(
+        cors({
+            origin: (origin, callback) => {
+                if (!origin || allowedOrigins.includes(origin)) {
+                    callback(null, true);
+                } else {
+                    callback(new Error('Not allowed by CORS'));
+                }
+            },
+            credentials: true, // Cho phép gửi cookie
+        }),
+    );
     routes(app);
 
     // Middleware xử lý lỗi
