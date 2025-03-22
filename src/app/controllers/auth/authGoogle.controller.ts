@@ -9,7 +9,7 @@ export const GoogleCallback = async (req: Request, res: Response): Promise<any> 
             sameSite: 'none', // Để cookie có thể gửi giữa các subdomain khác nhau
             maxAge: 1000 * 60 * 60 * 24, // 1 ngày
         });
-        res.redirect(`${process.env.ALLOW_ORIGIN}/login-success `);
+        res.redirect(`${process.env.ALLOW_ORIGIN}/login-success`);
     } catch (err: any) {
         return res.status(err.status || 500).json({});
     }
