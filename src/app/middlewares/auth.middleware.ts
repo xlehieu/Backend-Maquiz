@@ -55,9 +55,11 @@ export const authUserMiddleware = (req: any, res: Response, next: NextFunction):
     }
     jwt.verify(token, process.env.ACCESS_TOKEN, function (err: any, user: any) {
         if (err) {
-            return res.status(401).json({
+            console.log(err);
+            return res.status(500).json({
                 status: 'ERROR',
-                message: 'Lỗi',
+                message: 'Lỗi verify',
+                err,
             });
         }
         const currentTime = Math.floor(Date.now() / 1000); // Lấy thời gian hiện tại tính theo giây
