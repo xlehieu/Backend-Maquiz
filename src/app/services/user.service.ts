@@ -252,7 +252,7 @@ export const getMyFavoriteQuiz = (req: Request) => {
     });
 };
 
-export const getQuizzAccessHistory = (req: Request) => {
+export const getQuizAccessHistory = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { id } = req.userInfo;

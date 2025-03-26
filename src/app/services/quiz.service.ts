@@ -225,14 +225,14 @@ export const getQuizPreview = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { slug } = req.params;
-            const id = req.userInfo;
+            const { id } = req.userInfo;
             const findQuiz = await Quiz.findOne({ slug: slug })
                 .select('name description subject school thumb quiz accessCount examCount createdAt slug')
                 .populate('user', 'name avatar');
             if (!findQuiz) return reject({ message: 'Không tìm thấy bài trắc nghiệm' });
             findQuiz.accessCount++;
             findQuiz.save(); // không dùng await cho server nhanh =))))))))
-
+            // nếu đăng nhập rồi thì lấy id ở token ra để thêm vào quiz Access History
             if (id) {
                 const findUser = await User.findById(id);
                 if (findUser) {

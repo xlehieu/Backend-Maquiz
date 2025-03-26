@@ -20,6 +20,7 @@ interface IUser extends SoftDeleteDocument {
     examHistory: Types.ObjectId[];
     favoriteQuiz: Types.ObjectId[];
 }
+
 const UserSchema = new Schema<IUser>(
     {
         name: { type: String },
