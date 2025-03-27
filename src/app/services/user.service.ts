@@ -134,6 +134,7 @@ export const loginUser = (req: Request): Promise<any> => {
                     message: 'Email hoặc mật khẩu không chính xác',
                 });
             }
+            if (!userCheck.isActive) return reject({ message: 'Tài khoản của bạn đã bị chặn', status: 403 });
             const access_token = JWTService.generalToken({
                 id: userCheck!.id,
                 isAdmin: userCheck!.isAdmin,

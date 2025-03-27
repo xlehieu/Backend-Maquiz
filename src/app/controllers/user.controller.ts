@@ -74,8 +74,8 @@ export const loginUser = async (req: any, res: Response): Promise<any> => {
             sameSite: 'none', // Ngăn chặn các cuộc tấn công CSRF
         });
         return res.status(200).json({ message: 'Đăng nhập thành công' });
-    } catch (err) {
-        return res.status(500).json(err);
+    } catch (err: any) {
+        return res.status(err.status || 500).json(err);
     }
 };
 export const updateUser = async (req: Request, res: Response): Promise<any> => {

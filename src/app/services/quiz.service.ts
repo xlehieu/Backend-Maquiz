@@ -20,6 +20,7 @@ export const getQuizzes = (req: Request) => {
                 {
                     $match: {
                         user: new Types.ObjectId(id),
+                        isDisabled: false,
                     },
                 },
                 {
@@ -62,7 +63,7 @@ export const getQuizDetail = async (req: Request) => {
                 });
             }
             const quiz = await Quiz.findById(id);
-            if (!quiz) {
+            if (!quiz || quiz?.isDisabled) {
                 reject({
                     message: 'Quiz not found',
                 });
@@ -226,7 +227,7 @@ export const getQuizPreview = (req: Request) => {
         try {
             const { slug } = req.params;
             const userInfo = req.userInfo;
-            const findQuiz = await Quiz.findOne({ slug: slug })
+            const findQuiz = await Quiz.findOne({ slug: slug, isDisabled: false })
                 .select(
                     'name description subject school thumb quiz accessCount examCount createdAt topic educationLevel schoolYear slug',
                 )
@@ -297,8 +298,10 @@ export const getDiscoveryQuizzes = (req: Request) => {
             const { limit, skip, topic, school_year, education_level, name } = req.query;
 
             // Khởi tạo điều kiện lọc rỗng (không lọc nếu không có gì)
-            const matchStage: any = {};
-
+            const matchStage: any = {
+                isDisabled: false,
+            };
+            // chỗ này không cần toán tử match với isDiabled vì là lọc đơn giản
             // Tìm kiếm theo tên nếu có
             if (name && typeof name === 'string') {
                 matchStage.$or = [

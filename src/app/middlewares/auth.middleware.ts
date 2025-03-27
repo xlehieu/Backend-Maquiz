@@ -76,10 +76,10 @@ export const authUserMiddleware = (req: any, res: Response, next: NextFunction):
                 });
             }
         }
-        if (user.active === false)
-            return res.status(401).json({
+        if (user.isActive === false)
+            return res.status(403).json({
                 status: 'ERROR',
-                message: 'The account has been banned',
+                message: 'Tài khoản bạn đã bị chặn',
             });
         req.userInfo = user;
         next();
