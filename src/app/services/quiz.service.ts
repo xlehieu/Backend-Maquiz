@@ -225,7 +225,7 @@ export const getQuizPreview = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { slug } = req.params;
-            const { id } = req.userInfo;
+            const userInfo = req.userInfo;
             const findQuiz = await Quiz.findOne({ slug: slug })
                 .select('name description subject school thumb quiz accessCount examCount createdAt slug')
                 .populate('user', 'name avatar');
@@ -233,8 +233,8 @@ export const getQuizPreview = (req: Request) => {
             findQuiz.accessCount++;
             findQuiz.save(); // không dùng await cho server nhanh =))))))))
             // nếu đăng nhập rồi thì lấy id ở token ra để thêm vào quiz Access History
-            if (id) {
-                const findUser = await User.findById(id);
+            if (userInfo?.id) {
+                const findUser = await User.findById(userInfo?.id);
                 if (findUser) {
                     if (!findUser.quizAccessHistory.includes(findQuiz.id))
                         findUser.quizAccessHistory?.push(findQuiz!.id);
@@ -243,6 +243,7 @@ export const getQuizPreview = (req: Request) => {
             }
             return resolve({ message: 'Successfully fetched quiz', data: findQuiz });
         } catch (err) {
+            console.log(err);
             return reject({ message: 'Lỗi', error: err });
         }
     });
