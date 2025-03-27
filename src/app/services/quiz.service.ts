@@ -108,6 +108,7 @@ export const createQuiz = (req: Request) => {
                 resolve({ message: 'Successfully create quiz information', data: quiz });
             }
         } catch (err) {
+            console.log(err);
             return reject({ message: 'Lỗi', error: err });
         }
     });

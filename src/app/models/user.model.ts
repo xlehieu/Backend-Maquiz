@@ -27,7 +27,7 @@ const UserSchema = new Schema<IUser>(
         email: { type: String, required: true, unique: true },
         password: { type: String },
         isAdmin: { type: Boolean, default: false, required: true },
-        phone: { type: String, unique: true, match: /^[0-9]{10,11}$/ },
+        phone: { type: String, unique: true },
         avatar: { type: String },
         address: { type: String },
         access_token: { type: String },
