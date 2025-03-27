@@ -48,7 +48,6 @@ export const getQuizzes = (req: Request) => {
             };
             resolve({ message: 'Successfully fetched quizzes', data: result });
         } catch (err) {
-            console.log(err);
             return reject({ message: 'Lỗi', error: err });
         }
     });
@@ -227,7 +226,9 @@ export const getQuizPreview = (req: Request) => {
             const { slug } = req.params;
             const userInfo = req.userInfo;
             const findQuiz = await Quiz.findOne({ slug: slug })
-                .select('name description subject school thumb quiz accessCount examCount createdAt slug')
+                .select(
+                    'name description subject school thumb quiz accessCount examCount createdAt topic educationLevel schoolYear slug',
+                )
                 .populate('user', 'name avatar');
             if (!findQuiz) return reject({ message: 'Không tìm thấy bài trắc nghiệm' });
             findQuiz.accessCount++;

@@ -31,12 +31,6 @@ export const createQuiz = async (req: Request, res: Response): Promise<any> => {
 //Lưu câu hỏi trong tạo mới quiz
 export const createQuestion = async (req: Request, res: Response): Promise<any> => {
     try {
-        const { id, partName, questionType, questionContent, answers } = req.body;
-        if (!id || !partName || !questionType || !questionContent || !answers || answers.length === 0) {
-            return res.status(400).json({
-                message: 'Vui lòng kiểm tra lại thông tin câu hỏi',
-            });
-        }
         const response = await QuizService.createQuestion(req);
         return res.status(200).json(response);
     } catch (err) {
