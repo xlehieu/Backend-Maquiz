@@ -19,6 +19,8 @@ interface IUser extends SoftDeleteDocument {
     quizAccessHistory: Types.ObjectId[];
     examHistory: Types.ObjectId[];
     favoriteQuiz: Types.ObjectId[];
+    resetPasswordToken: String;
+    resetPasswordExpires: Number;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -39,6 +41,8 @@ const UserSchema = new Schema<IUser>(
         quizAccessHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'quiz', default: [] }],
         examHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'examHistory', default: [] }],
         favoriteQuiz: [{ type: mongoose.Schema.Types.ObjectId, ref: 'quiz', default: [] }],
+        resetPasswordToken: { type: String },
+        resetPasswordExpires: { type: Number },
     },
     {
         timestamps: true,
