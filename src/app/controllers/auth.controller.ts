@@ -5,12 +5,16 @@ import User from '../models/user.model';
 import { sendResetPasswordEmail } from '../services/mail/index.service';
 import bcrypt from 'bcryptjs';
 export const forgotPassword = async (req: Request, res: Response): Promise<any> => {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: 'Email không tồn tại' });
-    const token = JWTService.generalToken({ id: user.id.toString() });
-    await sendResetPasswordEmail(email, token);
-    return res.json({ message: 'Đã gửi email đặt lại mật khẩu' });
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ message: 'Email không tồn tại' });
+        const token = JWTService.generalToken({ id: user.id.toString() });
+        await sendResetPasswordEmail(email, token);
+        return res.status(200).json({ message: 'Đã gửi email đặt lại mật khẩu' });
+    } catch (err) {
+        res.status(500).json({ message: 'Lỗi', err });
+    }
 };
 var salt = bcrypt.genSaltSync(10);
 export const resetPassword = async (req: Request, res: Response) => {
