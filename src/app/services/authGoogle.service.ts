@@ -1,6 +1,6 @@
 import { Request } from 'express';
-import User from '../../models/user.model';
-import * as JWTService from '../../services/jwt.service';
+import User from '../models/user.model';
+import * as JWTService from './jwt.service';
 export const GoogleCallback = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {

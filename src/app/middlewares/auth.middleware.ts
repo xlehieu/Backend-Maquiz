@@ -47,6 +47,7 @@ export const checkIsAdmin = (req: any, res: Response, next: NextFunction): any =
 export const authUserMiddleware = (req: any, res: Response, next: NextFunction): any => {
     let token: any = req.cookies.access_token; //ở index.ts đã dùng app.use(cookieParser) nên ở d
     //if (!req.session.access_token) return res.status(401).json(); //.json({ status: 'ERR', message: 'Bạn cần đăng nhập' });
+    if (!token) return res.status(401).json({ status: 'ERR', message: 'Bạn cần đăng nhập' });
     token = token?.split(' ')[1];
     //hàm verify này nhận dối số thứ 2 là khóa để giải mã
     // ở hàm general token bên jwtservice cũng là khóa process.env.access_token nên nó giải mã được

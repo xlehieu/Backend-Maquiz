@@ -3,7 +3,7 @@ import User from '../models/user.model';
 import bcrypt from 'bcryptjs';
 import * as JWTService from '../services/jwt.service';
 import constants from '../../constants';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { Request } from 'express';
 import Quiz from '../models/quiz.model';
 import ExamHistory from '../models/examHistory.model';
@@ -94,15 +94,19 @@ export const getUserDetail = (req: Request) => {
                 await findUser.populate('quizAccessHistory', 'name thumb slug createdAt accessCount examCount'); //populate cũng lấy dữ liệu từ database nên cũng là bất đồng bộ
                 await findUser.populate('favoriteQuiz', 'name thumb slug createdAt accessCount examCount');
             }
-            const examHistory = await ExamHistory.find({
-                _id: {
-                    $in: findUser.examHistory,
-                },
-            }).populate('quiz', '-_id name thumb slug');
+            const examHistory = await ExamHistory.find({ user: user.id }).populate({
+                path: 'quiz',
+                select: 'name thumb slug createdAt accessCount examCount',
+            });
+            const validExamHistory = examHistory.filter((exam) => exam.quiz !== null);
             if (findUser) {
                 return resolve({
                     message: 'Successfully fetched user',
-                    data: Object.assign(findUser, { countQuizAccessHistory, countFavoriteQuiz }, { examHistory }),
+                    data: Object.assign(
+                        findUser,
+                        { countQuizAccessHistory, countFavoriteQuiz },
+                        { examHistory: validExamHistory },
+                    ),
                 });
             }
             return reject({

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { verifyResetToken, updatePassword } from '../services/auth.service';
 import * as JWTService from './../services/jwt.service';
 import User from '../models/user.model';
-import { sendResetPasswordEmail } from '../services/mail/index.service';
+import { sendResetPasswordEmail } from '../services/emailSender.service';
 import bcrypt from 'bcryptjs';
 export const forgotPassword = async (req: Request, res: Response): Promise<any> => {
     try {

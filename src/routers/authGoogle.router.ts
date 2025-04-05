@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import passport from 'passport';
 import dotenv from 'dotenv';
-import * as AuthGoogleController from '../../app/controllers/auth/authGoogle.controller';
+import * as AuthGoogleController from '../app/controllers/authGoogle.controller';
 dotenv.config();
 const authGoogleRouter = Router();
 // Route login Google
