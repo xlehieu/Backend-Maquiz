@@ -14,6 +14,6 @@ quizRouter.put('/updateQuestion', authUserMiddleware, QuizController.updateQuizQ
 quizRouter.delete('/:id/deleteQuiz', authUserMiddleware, QuizController.deleteQuiz);
 quizRouter.get('/forExam/:slug', authUserMiddleware, QuizController.getQuizForExam);
 // No authentication required
-quizRouter.get('/preview/:slug', QuizController.getQuizPreview);
+quizRouter.get('/preview/:slug', checkToken, QuizController.getQuizPreview);
 quizRouter.get('/discovery', QuizController.getDiscoveryQuizzes);
 export default quizRouter;

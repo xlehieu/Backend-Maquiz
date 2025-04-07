@@ -25,6 +25,7 @@ async function connect() {
             cookie: { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, secure: true }, // 10 minutes
         }),
     );
+
     app.use(passport.initialize());
     app.set('timeout', 50000);
     app.use(express.json({ limit: '30mb' }));

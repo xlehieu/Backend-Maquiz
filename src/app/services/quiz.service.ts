@@ -239,9 +239,10 @@ export const getQuizPreview = (req: Request) => {
             if (userInfo?.id) {
                 const findUser = await User.findById(userInfo?.id);
                 if (findUser) {
-                    if (!findUser.quizAccessHistory.includes(findQuiz.id))
+                    if (!findUser.quizAccessHistory.includes(findQuiz.id)) {
                         findUser.quizAccessHistory?.push(findQuiz!.id);
-                    findUser.save();
+                        findUser.save();
+                    }
                 }
             }
             return resolve({ message: 'Successfully fetched quiz', data: findQuiz });

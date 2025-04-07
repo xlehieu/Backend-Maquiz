@@ -92,15 +92,14 @@ export const checkToken = (req: any, res: Response, next: NextFunction): any => 
     if (!process.env.ACCESS_TOKEN) {
         return res.status(500).json({ status: 'ERR', message: 'Lỗi máy chủ' });
     }
-
     if (!token) {
-        return res.status(401).json({ status: 'ERR', message: 'Không có token' });
+        return next();
     }
     jwt.verify(token, process.env.ACCESS_TOKEN, function (err: any, user: any) {
         if (err) {
-            return res.status(401).json({ status: 'ERR', message: 'Token không hợp lệ' });
+            return res.status(500).json({ status: 'ERR', message: 'Token không hợp lệ' });
         }
         req.userInfo = user;
-        return next();
+        next();
     });
 };

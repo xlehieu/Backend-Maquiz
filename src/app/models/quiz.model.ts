@@ -81,6 +81,10 @@ const QuizSchema = new Schema<IQuiz>(
     },
     { timestamps: true },
 );
+QuizSchema.plugin(MongooseDelete, {
+    deletedAt: true,
+    overrideMethods: true,
+});
 QuizSchema.pre<IQuiz>('validate', async function (next) {
     if (this?.isModified('name')) {
         // kiểm tra xem có thay đổi so với trước đó hay không? nếu là lần đầu thêm thì isModified luôn trả về true
@@ -90,7 +94,10 @@ QuizSchema.pre<IQuiz>('validate', async function (next) {
             locale: 'vi', // Hỗ trợ tiếng Việt
         });
         // Kiểm tra slug đã tồn tại - slugExist này sẽ trả về objectId
-        let slugExists = await mongoose.models.quiz.exists({ slug: newSlug });
+        let slugExists = await Quiz.findOneWithDeleted({
+            slug: newSlug,
+        });
+        console.log(slugExists);
         let counter = 1;
         // Nếu slug đã tồn tại, thêm hậu tố để tạo slug mới
         while (slugExists) {
@@ -99,7 +106,9 @@ QuizSchema.pre<IQuiz>('validate', async function (next) {
                 strict: true,
                 locale: 'vi',
             })}-${counter}`;
-            slugExists = await mongoose.models.quiz.exists({ slug: newSlug });
+            slugExists = await Quiz.findOneWithDeleted({
+                slug: newSlug,
+            });
             counter++;
         }
         this.slug = newSlug;
@@ -119,10 +128,6 @@ QuizSchema.pre<IQuiz>('save', function (next) {
     } catch (err) {
         throw new Error('Lỗi');
     }
-});
-QuizSchema.plugin(MongooseDelete, {
-    deletedAt: true,
-    overrideMethods: true,
 });
 const Quiz = mongoose.model<IQuiz, SoftDeleteModel<IQuiz>>('quiz', QuizSchema);
 export default Quiz;
