@@ -97,7 +97,6 @@ QuizSchema.pre<IQuiz>('validate', async function (next) {
         let slugExists = await Quiz.findOneWithDeleted({
             slug: newSlug,
         });
-        console.log(slugExists);
         let counter = 1;
         // Nếu slug đã tồn tại, thêm hậu tố để tạo slug mới
         while (slugExists) {
@@ -113,21 +112,15 @@ QuizSchema.pre<IQuiz>('validate', async function (next) {
         }
         this.slug = newSlug;
     }
-    next();
-});
-QuizSchema.pre<IQuiz>('save', function (next) {
-    try {
-        if (!this.name) throw new Error('Quiz name is required.');
-        this.nameNoAccent = removeAccents(this.name.toLowerCase());
+    this.nameNoAccent = removeAccents(this.name.toLowerCase());
+    if (this.isModified('quiz')) {
         if (Array.isArray(this.quiz)) {
             this.questionCount = this.quiz.reduce((accumulator, partCurrent) => {
                 return accumulator + partCurrent?.questions?.length;
             }, 0);
         }
-        next();
-    } catch (err) {
-        throw new Error('Lỗi');
     }
+    next();
 });
 const Quiz = mongoose.model<IQuiz, SoftDeleteModel<IQuiz>>('quiz', QuizSchema);
 export default Quiz;

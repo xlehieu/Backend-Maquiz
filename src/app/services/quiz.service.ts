@@ -179,23 +179,19 @@ export const updateQuizGeneralInfo = (req: Request) => {
             if (!thumb.startsWith('http')) {
                 var urlThumb = await uploadAndGetLink(thumb, `${user.id}/quiz`); //base64, tên folder ảnh (userId/quiz)
             }
-            const quizUpdate = await Quiz.findByIdAndUpdate(
-                id,
-                {
-                    name,
-                    description,
-                    subject,
-                    school,
-                    topic,
-                    schoolYear,
-                    educationLevel,
-                    user: user.id,
-                    thumb: urlThumb ?? thumb,
-                },
-                { new: true },
-            );
-            if (quizUpdate)
-                return resolve({ message: 'Successfully updated quiz general information', data: quizUpdate });
+            const quizUpdate = await Quiz.findById(id);
+            if (!quizUpdate) return reject({ message: 'Không tìm thấy bài trắc nghiệm tương ứng' });
+            quizUpdate.name = name;
+            quizUpdate.description = description;
+            quizUpdate.subject = subject;
+            quizUpdate.school = school;
+            quizUpdate.topic = topic;
+            quizUpdate.schoolYear = schoolYear;
+            quizUpdate.educationLevel = educationLevel;
+            quizUpdate.user = user.id;
+            quizUpdate.thumb = urlThumb ?? thumb;
+            const infoSave = await quizUpdate.save();
+            if (infoSave) return resolve({ message: 'Successfully updated quiz general information', data: infoSave });
             return reject({ message: 'Cập nhật bài trắc nghiệm thất bại' });
         } catch (err) {
             return reject({ message: 'Lỗi', error: err });

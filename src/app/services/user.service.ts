@@ -91,8 +91,14 @@ export const getUserDetail = (req: Request) => {
                 if (findUser.favoriteQuiz.length > 12) {
                     findUser.favoriteQuiz = findUser.favoriteQuiz.slice(0, 12);
                 }
-                await findUser.populate('quizAccessHistory', 'name thumb slug createdAt accessCount examCount'); //populate cũng lấy dữ liệu từ database nên cũng là bất đồng bộ
-                await findUser.populate('favoriteQuiz', 'name thumb slug createdAt accessCount examCount');
+                await findUser.populate(
+                    'quizAccessHistory',
+                    'name thumb slug createdAt accessCount examCount questionCount',
+                ); //populate cũng lấy dữ liệu từ database nên cũng là bất đồng bộ
+                await findUser.populate(
+                    'favoriteQuiz',
+                    'name thumb slug createdAt accessCount examCount questionCount',
+                );
             }
             const examHistory = await ExamHistory.find({ user: user.id }).populate({
                 path: 'quiz',
