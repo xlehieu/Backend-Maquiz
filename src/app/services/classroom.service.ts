@@ -2,7 +2,7 @@ import { Request } from 'express';
 import Classroom from '../models/classroom.model';
 import mongoose, { Types } from 'mongoose';
 import User from '../models/user.model';
-import { generateUniqueRandomString } from '../../utils';
+import { generateUniqueRandomString, uploadAndGetLink } from '../../utils';
 import { imageClassThumbnailDefault } from '../../constants';
 import Post from '../models/post.model';
 export const getUserClassrooms = (req: Request) => {
@@ -119,6 +119,27 @@ export const enrollInClassroom = (req: Request) => {
             return reject({ message: 'ERROR' });
         } catch (err) {
             return reject({ message: 'ERROR', error: err });
+        }
+    });
+};
+export const updateClassroom = (req: Request) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { classCode, name, subject, thumb } = req.body;
+            const userInfo = req.userInfo;
+            const classInfo = await Classroom.findOne({ classCode });
+
+            if (!classInfo) return reject({ message: 'Không tìm thấy lớp học', status: 400 });
+            if (!name?.trim() || !subject?.trim()) return reject({ message: 'Thiếu dữ liệu', status: 400 });
+            if (classInfo.teacher.toString() !== userInfo.id.toString())
+                return reject({ message: 'Bạn không có quyền sửa lớp học này', status: 403 });
+            classInfo.name = name;
+            classInfo.subject = subject;
+            classInfo.thumb = (await uploadAndGetLink(thumb, 'classroom')) || classInfo.thumb;
+            classInfo.save();
+            return resolve({ message: 'Cập nhật lớp học thành công', data: classInfo });
+        } catch (err) {
+            reject({ err, message: 'Lỗi' });
         }
     });
 };

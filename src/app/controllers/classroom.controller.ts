@@ -32,3 +32,11 @@ export const enrollInClassroom = async (req: Request, res: Response): Promise<an
         return res.status(500).json(err);
     }
 };
+export const updateClassroom = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const response = await ClassroomService.updateClassroom(req);
+        return res.status(200).json(response);
+    } catch (err: any) {
+        return res.status(err.status || 500).json(err);
+    }
+};

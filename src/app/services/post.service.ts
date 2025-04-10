@@ -63,7 +63,6 @@ export const deletePostByPostId = (req: Request) => {
                 return reject({ status: 400, message: 'unsuccessfully deleted' });
             }
             const postDeleteInfo: any = await Post.deleteById(id);
-            console.log('postDeleteInfo', postDeleteInfo);
             if (postDeleteInfo.matchedCount > 0) {
                 return resolve({ message: 'successfully deleted' });
             }

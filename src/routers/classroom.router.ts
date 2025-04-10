@@ -8,5 +8,5 @@ classroomRouter.post('/create', authUserMiddleware, ClassroomController.createCl
 classroomRouter.get('/mine', authUserMiddleware, ClassroomController.getUserClassrooms);
 classroomRouter.get('/detail', authUserMiddleware, ClassroomController.getClassroomDetail);
 classroomRouter.patch('/enroll', authUserMiddleware, ClassroomController.enrollInClassroom);
-
+classroomRouter.patch('/info', authUserMiddleware, ClassroomController.updateClassroom);
 export default classroomRouter;

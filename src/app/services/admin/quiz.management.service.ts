@@ -67,3 +67,17 @@ export const setDisabledQuiz = (req: Request) => {
         }
     });
 };
+export const getQuizDetail = (req: Request) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { id } = req.params;
+            console.log(id);
+            if (!id) return reject({ status: 404, message: 'id is required' });
+            const quiz = await Quiz.findById(id);
+            if (!quiz) return reject({ status: 404, message: 'Quiz not found' });
+            return resolve({ message: 'successfully fetch quiz', data: quiz });
+        } catch (err) {
+            return reject({ message: 'Loi', error: err });
+        }
+    });
+};

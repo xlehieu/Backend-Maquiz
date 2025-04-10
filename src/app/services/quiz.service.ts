@@ -24,6 +24,11 @@ export const getQuizzes = (req: Request) => {
                     },
                 },
                 {
+                    $sort: {
+                        createdAt: -1,
+                    },
+                },
+                {
                     //facet giup chay cac pipeline con
                     // nhu o trong huop nay la ban dau se dem so quiz duoc lay ra
                     $facet: {
@@ -292,7 +297,7 @@ export const getQuizForExam = (req: Request) => {
 export const getDiscoveryQuizzes = (req: Request) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { limit, skip, topic, school_year, education_level, name } = req.query;
+            const { limit, skip, topic, schoolYear, educationLevel, name } = req.query;
 
             // Khởi tạo điều kiện lọc rỗng (không lọc nếu không có gì)
             const matchStage: any = {
@@ -315,19 +320,22 @@ export const getDiscoveryQuizzes = (req: Request) => {
                 }
             }
 
-            // Lọc theo school_year nếu có
-            if (school_year && typeof school_year === 'string') {
-                const schoolYearArray = school_year.split(',');
-                if (schoolYearArray.length > 0) {
-                    matchStage.school_year = { $in: schoolYearArray };
+            // Lọc theo schoolYear nếu có
+            if (schoolYear && typeof schoolYear === 'string') {
+                const [startYear, endYear] = schoolYear.split(',');
+                if (startYear && endYear) {
+                    matchStage.schoolYear = {
+                        $gte: Number(startYear),
+                        $lte: Number(endYear),
+                    };
                 }
             }
 
-            // Lọc theo education_level nếu có
-            if (education_level && typeof education_level === 'string') {
-                const educationLevelArray = education_level.split(',');
+            // Lọc theo educationLevel nếu có
+            if (educationLevel && typeof educationLevel === 'string') {
+                const educationLevelArray = educationLevel.split(',');
                 if (educationLevelArray.length > 0) {
-                    matchStage.education_level = { $in: educationLevelArray };
+                    matchStage.educationLevel = { $in: educationLevelArray };
                 }
             }
 
@@ -337,7 +345,11 @@ export const getDiscoveryQuizzes = (req: Request) => {
             if (Object.keys(matchStage).length > 0) {
                 aggregationPipeline.push({ $match: matchStage });
             }
-
+            aggregationPipeline.push({
+                $sort: {
+                    createdAt: -1,
+                },
+            });
             aggregationPipeline.push({
                 $facet: {
                     metadata: [{ $count: 'total' }],
@@ -349,7 +361,7 @@ export const getDiscoveryQuizzes = (req: Request) => {
             });
 
             const quizzes = await Quiz.aggregate(aggregationPipeline);
-            const data = Object.assign(quizzes[0].metadata[0], { quizzes: quizzes[0].data });
+            const data = Object.assign(quizzes[0].metadata[0] || { total: 0 }, { quizzes: quizzes[0].data });
             if (quizzes) {
                 resolve({ message: 'Successfully fetched', data: data });
             }
